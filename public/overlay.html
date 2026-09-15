@@ -220,16 +220,17 @@
             }
           } else {
             const y = window.innerHeight - 6;
+            const left = config.corner === "left";
+            const base = left ? 90 : window.innerWidth - 90;
             const spots = config.twoSeater
               ? [
-                  { x: 74, pal: 0 },
-                  { x: 148, pal: 1 },
+                  { x: base, pal: config.palette % 2 },
+                  { x: base + (left ? 76 : -76), pal: (config.palette + 1) % 2 },
                 ]
-              : [{ x: config.corner === "left" ? 90 : window.innerWidth - 90, pal: config.palette % 2 }];
+              : [{ x: base, pal: config.palette % 2 }];
             for (const s of spots) {
-              const x = config.corner === "left" || config.twoSeater ? s.x : s.x;
               const c = makeChar(svg, palettes[s.pal], {});
-              c.root.setAttribute("transform", `translate(${x} ${y - 30}) scale(1.05)`);
+              c.root.setAttribute("transform", `translate(${s.x} ${y - 30}) scale(1.05)`);
               c.seated = true;
               parts.riders.push(c);
             }
