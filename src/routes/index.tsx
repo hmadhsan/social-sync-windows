@@ -181,7 +181,8 @@ function Index() {
           <p className="mt-4 text-lg text-muted-foreground">Totally optional, btw.</p>
           <div className="mt-8 flex flex-col items-center gap-3">
             <a
-              href="/downloads/swingers-win64.zip"
+              href={winBuild.url}
+              download="swingers-win64.zip"
               className="rounded-full bg-primary px-7 py-3.5 font-display text-lg font-bold text-primary-foreground transition-transform hover:scale-105"
             >
               Download for Windows
