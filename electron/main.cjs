@@ -1,8 +1,56 @@
-const { app, BrowserWindow, Tray, Menu, screen, nativeImage } = require("electron");
+const { app, BrowserWindow, Tray, Menu, screen, nativeImage, shell } = require("electron");
 const path = require("path");
 const fs = require("fs");
 
+const APP_NAME = "Danglers";
+app.setName(APP_NAME);
+if (process.platform === "win32") app.setAppUserModelId("wtf.danglers.app");
+
 const CONFIG_PATH = () => path.join(app.getPath("userData"), "config.json");
+
+function iconImage() {
+  const image = nativeImage.createFromPath(path.join(__dirname, "..", "build", "tray.png"));
+  return image.isEmpty() ? nativeImage.createEmpty() : image;
+}
+
+// Create Desktop + Start Menu shortcuts the first time the app runs,
+// so it can be started by double-clicking an icon.
+function ensureShortcuts() {
+  if (process.platform !== "win32") return;
+  const stamp = path.join(app.getPath("userData"), "shortcuts.json");
+  if (fs.existsSync(stamp)) return;
+  const options = {
+    target: process.execPath,
+    icon: process.execPath,
+    iconIndex: 0,
+    description: `${APP_NAME} — unnecessary shit on your screen`,
+    appUserModelId: "wtf.danglers.app",
+  };
+  const targets = [
+    path.join(app.getPath("desktop"), `${APP_NAME}.lnk`),
+    path.join(app.getPath("appData"), "Microsoft", "Windows", "Start Menu", "Programs", `${APP_NAME}.lnk`),
+  ];
+  for (const link of targets) {
+    try {
+      shell.writeShortcutLink(link, "create", options);
+    } catch {
+      /* ignore */
+    }
+  }
+  try {
+    fs.writeFileSync(stamp, JSON.stringify({ created: Date.now() }));
+  } catch {
+    /* ignore */
+  }
+}
+
+function startsWithWindows() {
+  try {
+    return app.getLoginItemSettings().openAtLogin;
+  } catch {
+    return false;
+  }
+}
 
 const defaults = {
   mode: "swing",
@@ -90,10 +138,9 @@ function radio(label, checked, click) {
 
 function buildTray() {
   if (!tray) {
-    const iconPath = path.join(__dirname, "..", "public", "favicon.png");
-    const image = nativeImage.createFromPath(iconPath);
-    tray = new Tray(image.isEmpty() ? nativeImage.createEmpty() : image.resize({ width: 16, height: 16 }));
-    tray.setToolTip("swingers");
+    const image = iconImage();
+    tray = new Tray(image.isEmpty() ? image : image.resize({ width: 16, height: 16 }));
+    tray.setToolTip(APP_NAME);
   }
   tray.setContextMenu(
     Menu.buildFromTemplate([
