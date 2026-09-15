@@ -136,8 +136,8 @@ function Demo() {
               Full loops
             </Chip>
             <Chip
-              active={config.rope === 260}
-              onClick={() => patch({ rope: config.rope === 260 ? 120 : 260 })}
+              active={config.rope === 200}
+              onClick={() => patch({ rope: config.rope === 200 ? 120 : 200 })}
             >
               Long rope
             </Chip>
