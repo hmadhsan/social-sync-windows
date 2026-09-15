@@ -1,18 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import appIcon from "@/assets/app-icon.png";
-import winBuild from "@/assets/swingers-win64.zip.asset.json";
+import appIcon from "@/assets/danglers-icon.png";
+import winBuild from "@/assets/danglers-win64.zip.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "swingers for Windows — a tiny character on your desktop" },
+      { title: "Danglers for Windows — a tiny character on your desktop" },
       {
         name: "description",
         content:
           "Hang a swing from the top of your Windows screen or park a sitter in the corner. Free, tiny, lives in the system tray. Totally optional, btw.",
       },
-      { property: "og:title", content: "swingers for Windows" },
+      { property: "og:title", content: "Danglers for Windows" },
       {
         property: "og:description",
         content: "Unnecessary shit on your Windows screen. Totally optional, btw.",
