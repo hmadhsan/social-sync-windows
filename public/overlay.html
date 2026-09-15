@@ -142,15 +142,22 @@
               }
 
               // legs kick out at the top of each arc
-              const kick = c.seated
-                ? 78 + Math.sin(t * 2.6 + seed) * 10
-                : c.loops
-                  ? 30
-                  : 18 + swing * 34 + speed * 10;
-              legs[0].hip.setAttribute("transform", `translate(-8 -2) rotate(${(kick * 0.9).toFixed(1)})`);
-              legs[1].hip.setAttribute("transform", `translate(8 -2) rotate(${(kick * -0.9 + (c.seated ? 0 : 4)).toFixed(1)})`);
-              legs[0].foot.setAttribute("transform", `translate(1 30) rotate(${(-kick * 0.9 - 10).toFixed(1)})`);
-              legs[1].foot.setAttribute("transform", `translate(1 30) rotate(${(kick * 0.9 - 10).toFixed(1)})`);
+              if (c.seated) {
+                // both legs stretched out the same way, feet gently bobbing
+                const a = -(70 + Math.sin(t * 1.8 + seed) * 7);
+                const b = -(62 + Math.sin(t * 1.8 + seed + 0.7) * 7);
+                legs[0].hip.setAttribute("transform", `translate(-8 -2) rotate(${a.toFixed(1)})`);
+                legs[1].hip.setAttribute("transform", `translate(8 -2) rotate(${b.toFixed(1)})`);
+                legs[0].foot.setAttribute("transform", `translate(1 30) rotate(${(-a - 30).toFixed(1)})`);
+                legs[1].foot.setAttribute("transform", `translate(1 30) rotate(${(-b - 30).toFixed(1)})`);
+              } else {
+                // legs kick out at the top of each arc
+                const kick = c.loops ? 30 : 18 + swing * 34 + speed * 10;
+                legs[0].hip.setAttribute("transform", `translate(-8 -2) rotate(${(kick * 0.9).toFixed(1)})`);
+                legs[1].hip.setAttribute("transform", `translate(8 -2) rotate(${(kick * -0.9 + 4).toFixed(1)})`);
+                legs[0].foot.setAttribute("transform", `translate(1 30) rotate(${(-kick * 0.9 - 10).toFixed(1)})`);
+                legs[1].foot.setAttribute("transform", `translate(1 30) rotate(${(kick * 0.9 - 10).toFixed(1)})`);
+              }
 
               // head bobs and hair flaps
               head.setAttribute("transform", `translate(0 -34) rotate(${(swing * 4 + wob * 1.2).toFixed(2)})`);
