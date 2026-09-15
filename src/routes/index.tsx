@@ -233,6 +233,23 @@ function Index() {
             puts a Danglers icon on your desktop the first time it runs, and lives in your system tray
             next to the clock — that's where all the settings are, plus “Start with Windows”.
           </p>
+
+          <div className="mx-auto mt-4 max-w-xl rounded-2xl border border-accent/40 bg-accent/10 p-5 text-left text-sm">
+            <p className="font-display text-base font-bold text-foreground">
+              Windows may say “Windows protected your PC”
+            </p>
+            <p className="mt-2 text-muted-foreground">
+              That blue screen shows up for every brand-new app that hasn't paid for a publisher
+              certificate yet. It isn't a virus warning — Windows simply hasn't seen this file before.
+              Click <span className="text-foreground">More info</span> →{" "}
+              <span className="text-foreground">Run anyway</span> and you're in. It stops appearing
+              after that.
+            </p>
+            <p className="mt-2 text-muted-foreground">
+              No installer, no admin rights, no network calls, no accounts, no tracking. Delete the
+              folder and it's completely gone.
+            </p>
+          </div>
         </section>
 
         <section className="mt-20 grid gap-4 sm:grid-cols-3" aria-label="Reactions">
