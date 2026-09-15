@@ -63,13 +63,13 @@
           return node;
         }
 
-        function character(parent, p, cx, cy, scale) {
+        function character(parent, p, cx, cy, scale, seated) {
           const g = el("g", { transform: `translate(${cx} ${cy}) scale(${scale})` }, parent);
           // legs
           el(
             "path",
             {
-              d: "M-9 0 L-11 34 M9 0 L11 34",
+              d: seated ? "M-9 0 L-16 26 L-4 30 M9 0 L14 30" : "M-9 0 L-11 34 M9 0 L11 34",
               stroke: p.pants,
               "stroke-width": "9",
               "stroke-linecap": "round",
@@ -78,14 +78,16 @@
             g,
           );
           // shoes
-          el("path", { d: "M-11 34 L-20 36 M11 34 L20 36", stroke: "#1b1430", "stroke-width": "7", "stroke-linecap": "round" }, g);
+          el("path", { d: seated ? "M-4 30 L-14 32 M14 30 L24 32" : "M-11 34 L-20 36 M11 34 L20 36", stroke: "#1b1430", "stroke-width": "7", "stroke-linecap": "round" }, g);
           // body
           el("rect", { x: "-15", y: "-34", width: "30", height: "36", rx: "12", fill: p.shirt }, g);
           // arms holding ropes
           el(
             "path",
             {
-              d: "M-14 -26 L-22 -52 M14 -26 L22 -52",
+              d: seated
+                ? "M-14 -26 L-22 -6 M14 -26 L20 -4"
+                : "M-14 -26 L-22 -52 M14 -26 L22 -52",
               stroke: p.skin,
               "stroke-width": "7",
               "stroke-linecap": "round",
@@ -130,12 +132,12 @@
             }
             parts.pivot = pivot;
           } else {
-            const y = window.innerHeight - 6;
+            const y = window.innerHeight - 16;
             const x = config.corner === "left" ? 90 : window.innerWidth - 90;
             const g = el("g", {});
             // seated pose: body upright, one knee up
             el("path", { d: `M${x - 30} ${y} L${x + 34} ${y}`, stroke: "transparent", "stroke-width": "1" }, g);
-            const sitter = character(g, palettes[config.palette % 2], x, y - 34, 1.05);
+            const sitter = character(g, palettes[config.palette % 2], x, y - 32, 1.05, true);
             parts.riders = [sitter];
           }
         }
