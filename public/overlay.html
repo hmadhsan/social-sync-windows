@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>swingers overlay</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: transparent;
+        overflow: hidden;
+        user-select: none;
+        -webkit-user-select: none;
+      }
+      #stage {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+      }
+      svg {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        overflow: visible;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="stage">
+      <svg id="scene" xmlns="http://www.w3.org/2000/svg"></svg>
+    </div>
+    <script>
+      (function () {
+        const NS = "http://www.w3.org/2000/svg";
+        const svg = document.getElementById("scene");
+
+        const config = {
+          mode: "swing", // "swing" | "sitter"
+          anchor: 0.5, // 0..1 horizontal position
+          rope: 190, // px
+          amplitude: 34, // degrees
+          period: 2.6, // seconds
+          loops: false,
+          twoSeater: false,
+          corner: "left", // sitter corner
+          palette: 0,
+        };
+
+        const palettes = [
+          { skin: "#f6c9a8", shirt: "#c6f24e", pants: "#3a2f6b", hair: "#2a1f45" },
+          { skin: "#c68a63", shirt: "#ff7a6b", pants: "#1f3b5c", hair: "#17121f" },
+        ];
+
+        let cursor = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+
+        function el(name, attrs, parent) {
+          const node = document.createElementNS(NS, name);
+          for (const k in attrs) node.setAttribute(k, attrs[k]);
+          (parent || svg).appendChild(node);
+          return node;
+        }
+
+        function character(parent, p, cx, cy, scale) {
+          const g = el("g", { transform: `translate(${cx} ${cy}) scale(${scale})` }, parent);
+          // legs
+          el(
+            "path",
+            {
+              d: "M-9 0 L-11 34 M9 0 L11 34",
+              stroke: p.pants,
+              "stroke-width": "9",
+              "stroke-linecap": "round",
+              fill: "none",
+            },
+            g,
+          );
+          // shoes
+          el("path", { d: "M-11 34 L-20 36 M11 34 L20 36", stroke: "#1b1430", "stroke-width": "7", "stroke-linecap": "round" }, g);
+          // body
+          el("rect", { x: "-15", y: "-34", width: "30", height: "36", rx: "12", fill: p.shirt }, g);
+          // arms holding ropes
+          el(
+            "path",
+            {
+              d: "M-14 -26 L-22 -52 M14 -26 L22 -52",
+              stroke: p.skin,
+              "stroke-width": "7",
+              "stroke-linecap": "round",
+              fill: "none",
+            },
+            g,
+          );
+          // head
+          el("circle", { cx: "0", cy: "-48", r: "15", fill: p.skin }, g);
+          el("path", { d: "M-15 -52 A15 15 0 0 1 15 -52 L15 -58 A15 15 0 0 0 -15 -58 Z", fill: p.hair }, g);
+          const eyeL = el("circle", { cx: "-5.5", cy: "-47", r: "2.4", fill: "#1b1430" }, g);
+          const eyeR = el("circle", { cx: "5.5", cy: "-47", r: "2.4", fill: "#1b1430" }, g);
+          el("path", { d: "M-4 -40 Q0 -37 4 -40", stroke: "#1b1430", "stroke-width": "1.8", fill: "none", "stroke-linecap": "round" }, g);
+          return { g, eyeL, eyeR };
+        }
+
+        let parts = null;
+
+        function build() {
+          while (svg.firstChild) svg.removeChild(svg.firstChild);
+          parts = {};
+          if (config.mode === "swing") {
+            const ax = window.innerWidth * config.anchor;
+            const pivot = el("g", { transform: `translate(${ax} 0)` });
+            const arm = el("g", {}, pivot);
+            parts.arm = arm;
+            const halfSeat = config.twoSeater ? 62 : 34;
+            el("path", { d: `M${-halfSeat + 6} 0 L${-halfSeat + 6} ${config.rope}`, stroke: "#b9a77f", "stroke-width": "3" }, arm);
+            el("path", { d: `M${halfSeat - 6} 0 L${halfSeat - 6} ${config.rope}`, stroke: "#b9a77f", "stroke-width": "3" }, arm);
+            el(
+              "rect",
+              { x: -halfSeat, y: config.rope, width: halfSeat * 2, height: "12", rx: "4", fill: "#8b5e34" },
+              arm,
+            );
+            el("rect", { x: -halfSeat, y: config.rope, width: halfSeat * 2, height: "4", rx: "2", fill: "#a9713f" }, arm);
+            parts.riders = [];
+            if (config.twoSeater) {
+              parts.riders.push(character(arm, palettes[0], -30, config.rope, 0.95));
+              parts.riders.push(character(arm, palettes[1], 30, config.rope, 0.95));
+            } else {
+              parts.riders.push(character(arm, palettes[config.palette % 2], 0, config.rope, 1));
+            }
+            parts.pivot = pivot;
+          } else {
+            const y = window.innerHeight - 6;
+            const x = config.corner === "left" ? 90 : window.innerWidth - 90;
+            const g = el("g", {});
+            // seated pose: body upright, one knee up
+            el("path", { d: `M${x - 30} ${y} L${x + 34} ${y}`, stroke: "transparent", "stroke-width": "1" }, g);
+            const sitter = character(g, palettes[config.palette % 2], x, y - 34, 1.05);
+            parts.riders = [sitter];
+          }
+        }
+
+        function frame(now) {
+          const t = now / 1000;
+          if (config.mode === "swing" && parts && parts.arm) {
+            let deg;
+            if (config.loops) {
+              deg = ((t * 360) / Math.max(1.2, config.period)) % 360;
+            } else {
+              deg = config.amplitude * Math.sin((2 * Math.PI * t) / Math.max(0.6, config.period));
+            }
+            parts.arm.setAttribute("transform", `rotate(${deg.toFixed(2)})`);
+          }
+          if (parts && parts.riders) {
+            for (const r of parts.riders) {
+              const box = r.g.getBoundingClientRect();
+              const hx = box.left + box.width / 2;
+              const hy = box.top + box.height * 0.2;
+              const dx = Math.max(-1, Math.min(1, (cursor.x - hx) / 260)) * 2.2;
+              const dy = Math.max(-1, Math.min(1, (cursor.y - hy) / 260)) * 1.8;
+              r.eyeL.setAttribute("cx", (-5.5 + dx).toFixed(2));
+              r.eyeR.setAttribute("cx", (5.5 + dx).toFixed(2));
+              r.eyeL.setAttribute("cy", (-47 + dy).toFixed(2));
+              r.eyeR.setAttribute("cy", (-47 + dy).toFixed(2));
+            }
+          }
+          requestAnimationFrame(frame);
+        }
+
+        function apply(next) {
+          Object.assign(config, next || {});
+          build();
+        }
+
+        window.addEventListener("resize", build);
+        window.addEventListener("mousemove", (e) => {
+          cursor = { x: e.clientX, y: e.clientY };
+        });
+        // config from the desktop app (tray menu)
+        if (window.swingers && window.swingers.onConfig) {
+          window.swingers.onConfig(apply);
+          if (window.swingers.onCursor) window.swingers.onCursor((p) => (cursor = p));
+        }
+        // config from the web page hosting this in an iframe
+        window.addEventListener("message", (e) => {
+          if (e.data && e.data.type === "swingers:config") apply(e.data.config);
+        });
+        // config from the query string
+        const q = new URLSearchParams(location.search);
+        const initial = {};
+        for (const [k, v] of q.entries()) {
+          if (v === "true" || v === "false") initial[k] = v === "true";
+          else initial[k] = isNaN(Number(v)) ? v : Number(v);
+        }
+        apply(initial);
+        requestAnimationFrame(frame);
+      })();
+    </script>
+  </body>
+</html>
