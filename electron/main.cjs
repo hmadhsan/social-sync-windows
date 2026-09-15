@@ -144,7 +144,7 @@ function buildTray() {
   }
   tray.setContextMenu(
     Menu.buildFromTemplate([
-      { label: "swingers", enabled: false },
+      { label: APP_NAME, enabled: false },
       { type: "separator" },
       radio("Hang a swing", config.mode === "swing", () => set({ mode: "swing" })),
       radio("Park a sitter", config.mode === "sitter", () => set({ mode: "sitter" })),
@@ -184,6 +184,32 @@ function buildTray() {
         ],
       },
       { type: "separator" },
+      radio("Start with Windows", startsWithWindows(), () => {
+        try {
+          app.setLoginItemSettings({ openAtLogin: !startsWithWindows(), path: process.execPath });
+        } catch {
+          /* ignore */
+        }
+        buildTray();
+      }),
+      {
+        label: "Put an icon on my desktop",
+        click: () => {
+          if (process.platform !== "win32") return;
+          try {
+            shell.writeShortcutLink(path.join(app.getPath("desktop"), `${APP_NAME}.lnk`), "create", {
+              target: process.execPath,
+              icon: process.execPath,
+              iconIndex: 0,
+              description: `${APP_NAME} — unnecessary shit on your screen`,
+              appUserModelId: "wtf.danglers.app",
+            });
+          } catch {
+            /* ignore */
+          }
+        },
+      },
+      { type: "separator" },
       { label: "Quit", click: () => app.quit() },
     ]),
   );
@@ -191,6 +217,7 @@ function buildTray() {
 
 app.whenReady().then(() => {
   loadConfig();
+  ensureShortcuts();
   createWindow();
   buildTray();
 });
