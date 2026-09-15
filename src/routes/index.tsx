@@ -72,16 +72,28 @@ function Chip({
 function Demo() {
   const frame = useRef<HTMLIFrameElement>(null);
   const [config, setConfig] = useState<Config>(initialConfig);
+  const [ready, setReady] = useState(false);
 
+  // the overlay tells us when it can accept settings
+  useEffect(() => {
+    const onMessage = (e: MessageEvent) => {
+      if (e.data && e.data.type === "swingers:ready") setReady(true);
+    };
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
+  }, []);
+
+  // (re)send the settings whenever they change, and once the overlay is ready
   useEffect(() => {
     const send = () =>
       frame.current?.contentWindow?.postMessage({ type: "swingers:config", config }, "*");
     send();
-    const id = window.setTimeout(send, 300);
-    return () => window.clearTimeout(id);
-  }, [config]);
+    const ids = [80, 300, 900].map((d) => window.setTimeout(send, d));
+    return () => ids.forEach(window.clearTimeout);
+  }, [config, ready]);
 
   const patch = (p: Partial<Config>) => setConfig((c) => ({ ...c, ...p }));
+  const swinging = config.mode === "swing";
 
   return (
     <div className="space-y-5">
@@ -92,13 +104,14 @@ function Demo() {
           <span className="size-3 rounded-full bg-muted-foreground/40" />
           <span className="ml-2 text-xs text-muted-foreground">Your desktop, roughly</span>
         </div>
-        <div className="relative h-[360px] bg-[radial-gradient(120%_100%_at_20%_0%,oklch(0.32_0.09_290),oklch(0.18_0.06_285))]">
+        <div className="relative h-[380px] bg-[radial-gradient(120%_100%_at_20%_0%,oklch(0.32_0.09_290),oklch(0.18_0.06_285))]">
           <iframe
             ref={frame}
             title="Live swing preview"
             src="/overlay.html?rope=120"
             className="absolute inset-0 size-full"
             style={{ border: 0, background: "transparent" }}
+            onLoad={() => setReady(true)}
           />
           <div className="pointer-events-none absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-background/60 px-3 py-1 text-xs text-muted-foreground">
             move your mouse — they watch
@@ -106,31 +119,55 @@ function Demo() {
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        <Chip active={config.mode === "swing"} onClick={() => patch({ mode: "swing" })}>
-          Swing
+      <div className="flex flex-wrap items-center gap-2">
+        <Chip active={swinging} onClick={() => patch({ mode: "swing" })}>
+          Hang a swing
         </Chip>
-        <Chip active={config.mode === "sitter"} onClick={() => patch({ mode: "sitter" })}>
-          Sitter
+        <Chip active={!swinging} onClick={() => patch({ mode: "sitter" })}>
+          Sit in the corner
         </Chip>
+        <span className="mx-1 hidden h-6 w-px bg-border sm:block" />
         <Chip active={config.twoSeater} onClick={() => patch({ twoSeater: !config.twoSeater })}>
-          Two-seater
+          {swinging ? "Two-seater" : "Bring a friend"}
         </Chip>
-        <Chip active={config.loops} onClick={() => patch({ loops: !config.loops })}>
-          Full loops
-        </Chip>
-        <Chip active={config.rope === 200} onClick={() => patch({ rope: config.rope === 200 ? 120 : 200 })}>
-          Long rope
-        </Chip>
-        <Chip active={config.period === 1.6} onClick={() => patch({ period: config.period === 1.6 ? 2.6 : 1.6 })}>
-          Hyper
-        </Chip>
-        <Chip
-          active={config.corner === "right"}
-          onClick={() => patch({ corner: config.corner === "right" ? "left" : "right" })}
-        >
-          Other corner
-        </Chip>
+        {swinging ? (
+          <>
+            <Chip active={config.loops} onClick={() => patch({ loops: !config.loops })}>
+              Full loops
+            </Chip>
+            <Chip
+              active={config.rope === 260}
+              onClick={() => patch({ rope: config.rope === 260 ? 120 : 260 })}
+            >
+              Long rope
+            </Chip>
+            <Chip
+              active={config.amplitude === 72}
+              onClick={() => patch({ amplitude: config.amplitude === 72 ? 34 : 72 })}
+            >
+              Big arc
+            </Chip>
+            <Chip
+              active={config.period === 1.3}
+              onClick={() => patch({ period: config.period === 1.3 ? 2.6 : 1.3 })}
+            >
+              Hyper
+            </Chip>
+            <Chip
+              active={config.anchor !== 0.5}
+              onClick={() => patch({ anchor: config.anchor === 0.5 ? 0.8 : 0.5 })}
+            >
+              Move it over
+            </Chip>
+          </>
+        ) : (
+          <Chip
+            active={config.corner === "right"}
+            onClick={() => patch({ corner: config.corner === "right" ? "left" : "right" })}
+          >
+            Other corner
+          </Chip>
+        )}
       </div>
     </div>
   );
