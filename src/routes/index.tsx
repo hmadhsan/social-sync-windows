@@ -1,18 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import appIcon from "@/assets/app-icon.png";
-import winBuild from "@/assets/swingers-win64.zip.asset.json";
+import appIcon from "@/assets/danglers-icon.png";
+import winBuild from "@/assets/danglers-win64.zip.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "swingers for Windows — a tiny character on your desktop" },
+      { title: "Danglers for Windows — a tiny character on your desktop" },
       {
         name: "description",
         content:
           "Hang a swing from the top of your Windows screen or park a sitter in the corner. Free, tiny, lives in the system tray. Totally optional, btw.",
       },
-      { property: "og:title", content: "swingers for Windows" },
+      { property: "og:title", content: "Danglers for Windows" },
       {
         property: "og:description",
         content: "Unnecessary shit on your Windows screen. Totally optional, btw.",
@@ -144,8 +144,8 @@ function Index() {
 
       <header className="relative mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-4 px-6 py-6">
         <a href="/" className="flex items-center gap-2.5 font-display text-lg font-bold">
-          <img src={appIcon} alt="swingers app icon" width={32} height={32} className="size-8 rounded-lg" />
-          swingers
+          <img src={appIcon} alt="Danglers app icon" width={32} height={32} className="size-8 rounded-lg" />
+          Danglers
         </a>
         <nav className="flex items-center gap-5 text-sm text-muted-foreground">
           <a href="#demo" className="hover:text-foreground">
@@ -182,7 +182,7 @@ function Index() {
           <div className="mt-8 flex flex-col items-center gap-3">
             <a
               href={winBuild.url}
-              download="swingers-win64.zip"
+              download="danglers-win64.zip"
               className="rounded-full bg-primary px-7 py-3.5 font-display text-lg font-bold text-primary-foreground transition-transform hover:scale-105"
             >
               Download for Windows
@@ -192,8 +192,9 @@ function Index() {
             </span>
           </div>
           <p className="mx-auto mt-8 max-w-xl rounded-2xl border border-border bg-card/70 p-5 text-sm text-muted-foreground">
-            Unzip it anywhere and run <span className="text-foreground">swingers.exe</span>. It lives in
-            your system tray, next to the clock: click the swing icon to set things up.
+            Unzip it anywhere and double-click <span className="text-foreground">Danglers.exe</span>. It
+            puts a Danglers icon on your desktop the first time it runs, and lives in your system tray
+            next to the clock — that's where all the settings are, plus “Start with Windows”.
           </p>
         </section>
 
@@ -265,7 +266,7 @@ function Index() {
       </main>
 
       <footer className="relative border-t border-border py-8 text-center text-sm text-muted-foreground">
-        swingers · unnecessary since today
+        Danglers · unnecessary since today
       </footer>
     </div>
   );
