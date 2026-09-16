@@ -2,8 +2,8 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>danglers overlay</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Ammi overlay</title>
     <style>
       html,
       body {
@@ -11,315 +11,439 @@
         height: 100%;
         background: transparent;
         overflow: hidden;
-        user-select: none;
-        -webkit-user-select: none;
+        font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
       }
       #stage {
         position: fixed;
         inset: 0;
         pointer-events: none;
       }
-      svg {
+      #pod {
         position: absolute;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-        overflow: visible;
+        top: 0;
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+        transform: translateY(-130%);
+        transition: transform 0.85s cubic-bezier(0.22, 1.4, 0.36, 1);
+        will-change: transform;
+      }
+      #pod.in {
+        transform: translateY(0);
+      }
+      #ammi {
+        position: relative;
+        width: 150px;
+        flex: none;
+        filter: drop-shadow(0 10px 22px rgba(50, 20, 10, 0.28));
+      }
+      #bubble {
+        position: relative;
+        margin-top: 46px;
+        max-width: 330px;
+        padding: 14px 18px 15px;
+        border-radius: 4px 20px 20px 20px;
+        background: #fffdf6;
+        border: 1px solid rgba(90, 55, 30, 0.14);
+        box-shadow: 0 18px 40px -18px rgba(60, 30, 12, 0.45);
+        opacity: 0;
+        transform: translateY(-6px) scale(0.96);
+        transform-origin: top left;
+        transition:
+          opacity 0.4s ease,
+          transform 0.5s cubic-bezier(0.22, 1.3, 0.36, 1);
+      }
+      #pod.in #bubble {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        transition-delay: 0.34s;
+      }
+      #urdu {
+        margin: 0;
+        color: #3a2318;
+        font-size: 19px;
+        line-height: 1.32;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+      }
+      #english {
+        margin: 6px 0 0;
+        color: #8b6a55;
+        font-size: 14px;
+        line-height: 1.35;
+      }
+      @keyframes sway {
+        0%,
+        100% {
+          transform: rotate(-1.6deg);
+        }
+        50% {
+          transform: rotate(1.6deg);
+        }
+      }
+      #swayer {
+        transform-origin: 100px 8px;
+        animation: sway 4.6s ease-in-out infinite;
       }
     </style>
   </head>
   <body>
     <div id="stage">
-      <svg id="scene" xmlns="http://www.w3.org/2000/svg"></svg>
+      <div id="pod">
+        <svg id="ammi" viewBox="0 0 200 250" aria-hidden="true">
+          <g id="swayer">
+            <!-- hanging dupatta / body coming down from the top edge -->
+            <path
+              id="dupattaBack"
+              d="M100 0 C40 0 26 60 24 120 C22 170 34 210 44 250 L156 250 C166 210 178 170 176 120 C174 60 160 0 100 0 Z"
+              fill="#c2455f"
+            />
+            <path
+              d="M100 0 C62 0 46 40 42 96 C64 74 78 66 100 66 C122 66 136 74 158 96 C154 40 138 0 100 0 Z"
+              fill="#a8324b"
+            />
+            <!-- neck -->
+            <rect x="88" y="120" width="24" height="26" rx="10" fill="#c98d63" />
+            <!-- shoulders / kameez -->
+            <path
+              d="M100 136 C68 136 48 168 44 250 L156 250 C152 168 132 136 100 136 Z"
+              fill="#1f6b52"
+            />
+            <path d="M100 140 L100 250" stroke="#17553f" stroke-width="3" />
+            <!-- hair -->
+            <path
+              d="M100 24 C68 24 54 52 56 86 C58 108 62 120 66 128 C60 100 64 70 100 70 C136 70 140 100 134 128 C138 120 142 108 144 86 C146 52 132 24 100 24 Z"
+              fill="#241a18"
+            />
+            <!-- face -->
+            <ellipse cx="100" cy="94" rx="38" ry="42" fill="#e0a97c" />
+            <!-- cheeks -->
+            <ellipse id="cheekL" cx="80" cy="106" rx="9" ry="6" fill="#d0715f" opacity="0.4" />
+            <ellipse id="cheekR" cx="120" cy="106" rx="9" ry="6" fill="#d0715f" opacity="0.4" />
+            <!-- brows -->
+            <path
+              id="browL"
+              d="M82 78 C86 74 94 74 98 77"
+              stroke="#2b1d1a"
+              stroke-width="4"
+              stroke-linecap="round"
+              fill="none"
+            />
+            <path
+              id="browR"
+              d="M118 78 C114 74 106 74 102 77"
+              stroke="#2b1d1a"
+              stroke-width="4"
+              stroke-linecap="round"
+              fill="none"
+            />
+            <!-- eyes -->
+            <g id="eyes">
+              <ellipse cx="87" cy="90" rx="7.5" ry="8" fill="#fffdf7" />
+              <ellipse cx="113" cy="90" rx="7.5" ry="8" fill="#fffdf7" />
+              <g id="pupils">
+                <circle cx="87" cy="91" r="4" fill="#2b1d1a" />
+                <circle cx="113" cy="91" r="4" fill="#2b1d1a" />
+              </g>
+              <rect id="lidL" x="79" y="82" width="16" height="0" fill="#e0a97c" />
+              <rect id="lidR" x="105" y="82" width="16" height="0" fill="#e0a97c" />
+            </g>
+            <!-- nose + nose pin -->
+            <path
+              d="M100 96 C97 104 98 108 102 109"
+              stroke="#b97d53"
+              stroke-width="3"
+              fill="none"
+              stroke-linecap="round"
+            />
+            <circle cx="93" cy="107" r="2" fill="#e8c46a" />
+            <!-- mouth -->
+            <path
+              id="mouth"
+              d="M91 118 C96 124 104 124 109 118"
+              stroke="#8c3a34"
+              stroke-width="3.5"
+              fill="none"
+              stroke-linecap="round"
+            />
+            <!-- dupatta over the head -->
+            <path
+              d="M100 20 C64 20 48 50 50 92 C52 74 58 62 66 56 C74 34 84 30 100 30 C116 30 126 34 134 56 C142 62 148 74 150 92 C152 50 136 20 100 20 Z"
+              fill="#e4657f"
+            />
+            <path
+              d="M52 88 C46 130 46 176 52 214 C60 176 60 128 56 92 Z"
+              fill="#e4657f"
+              opacity="0.95"
+            />
+            <path
+              d="M148 88 C154 130 154 176 148 214 C140 176 140 128 144 92 Z"
+              fill="#e4657f"
+              opacity="0.95"
+            />
+            <!-- earrings -->
+            <circle cx="63" cy="100" r="4" fill="#e8c46a" />
+            <circle cx="137" cy="100" r="4" fill="#e8c46a" />
+            <!-- raised hand -->
+            <g id="hand">
+              <path
+                d="M150 172 C160 160 166 146 168 136"
+                stroke="#1f6b52"
+                stroke-width="18"
+                stroke-linecap="round"
+                fill="none"
+              />
+              <circle cx="170" cy="130" r="12" fill="#e0a97c" />
+            </g>
+          </g>
+        </svg>
+        <div id="bubble">
+          <p id="urdu">Pani pee lo.</p>
+          <p id="english">Drink some water.</p>
+        </div>
+      </div>
     </div>
+
     <script>
-      (function () {
-        const NS = "http://www.w3.org/2000/svg";
-        const svg = document.getElementById("scene");
+      const REMINDERS = [
+        { key: "water", urdu: "Pani pee lo.", en: "Drink some water.", mood: "caring" },
+        {
+          key: "food",
+          urdu: "Khana kha liya? Laptop ruk sakta hai.",
+          en: "Have you eaten? The laptop can wait.",
+          mood: "caring",
+        },
+        {
+          key: "break",
+          urdu: "Bohat der baith gaye. Thora chal lo.",
+          en: "You've been sitting a long time. Walk a little.",
+          mood: "scold",
+        },
+        { key: "eyes", urdu: "Ankhon ko aaram do.", en: "Give your eyes a rest.", mood: "caring" },
+        { key: "tea", urdu: "Chai bana doon?", en: "Shall I make you some tea?", mood: "happy" },
+        {
+          key: "posture",
+          urdu: "Seedhi tarhan baitho, kamar kharab ho jaye gi.",
+          en: "Sit up straight, you'll ruin your back.",
+          mood: "scold",
+        },
+        {
+          key: "late",
+          urdu: "Ab tak jaag rahe ho? Kal kaam nahi hai?",
+          en: "Still awake? Don't you have work tomorrow?",
+          mood: "sleepy",
+        },
+        {
+          key: "charger",
+          urdu: "Charger laga lo, battery khatam ho rahi hai.",
+          en: "Plug the charger in, your battery is low.",
+          mood: "scold",
+        },
+        { key: "medicine", urdu: "Dawai le li?", en: "Did you take your medicine?", mood: "caring" },
+        {
+          key: "morning",
+          urdu: "Subha bakhair! Aaj apna khayal rakhna.",
+          en: "Good morning! Look after yourself today.",
+          mood: "happy",
+        },
+        {
+          key: "call",
+          urdu: "Break mein phone karna, awaz sunni hai.",
+          en: "Call me on your break, I want to hear your voice.",
+          mood: "caring",
+        },
+        {
+          key: "praise",
+          urdu: "Shabash mera bacha. Ab thora aaram karo.",
+          en: "Well done, my child. Now rest a bit.",
+          mood: "happy",
+        },
+        {
+          key: "phone",
+          urdu: "Phone rakh do thori dair.",
+          en: "Put the phone down for a while.",
+          mood: "scold",
+        },
+        {
+          key: "dua",
+          urdu: "Duaon mein yaad rakhti hoon.",
+          en: "You're always in my prayers.",
+          mood: "happy",
+        },
+      ];
 
-        const config = {
-          mode: "swing", // "swing" | "sitter"
-          anchor: 0.5, // 0..1 horizontal position of the swing
-          rope: 190, // px
-          amplitude: 34, // degrees
-          period: 2.6, // seconds per full back-and-forth
-          loops: false,
-          twoSeater: false,
-          corner: "left", // sitter corner
-          palette: 0,
-        };
+      const defaults = {
+        position: "center", // center | left | right
+        interval: 25, // seconds between visits
+        visible: 9, // seconds she stays on screen
+        translation: true,
+        scale: 1,
+        auto: true,
+        scenario: 0,
+        enabled: REMINDERS.map((r) => r.key),
+      };
 
-        const palettes = [
-          { skin: "#f6c9a8", shirt: "#c6f24e", pants: "#3a2f6b", hair: "#2a1f45" },
-          { skin: "#c68a63", shirt: "#ff7a6b", pants: "#1f3b5c", hair: "#17121f" },
-        ];
+      let config = { ...defaults };
+      const pod = document.getElementById("pod");
+      const svg = document.getElementById("ammi");
+      const urdu = document.getElementById("urdu");
+      const english = document.getElementById("english");
+      const pupils = document.getElementById("pupils");
+      const lidL = document.getElementById("lidL");
+      const lidR = document.getElementById("lidR");
+      const mouth = document.getElementById("mouth");
+      const browL = document.getElementById("browL");
+      const browR = document.getElementById("browR");
+      const cheekL = document.getElementById("cheekL");
+      const cheekR = document.getElementById("cheekR");
+      const hand = document.getElementById("hand");
 
-        let cursor = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+      let index = 0;
+      let visitTimer = null;
+      let hideTimer = null;
 
-        function el(name, attrs, parent) {
-          const node = document.createElementNS(NS, name);
-          for (const k in attrs) node.setAttribute(k, attrs[k]);
-          (parent || svg).appendChild(node);
-          return node;
+      function pool() {
+        const on = REMINDERS.filter((r) => config.enabled.includes(r.key));
+        return on.length ? on : REMINDERS;
+      }
+
+      function place() {
+        const w = window.innerWidth;
+        pod.style.transform = pod.classList.contains("in") ? "" : "";
+        svg.style.width = 150 * config.scale + "px";
+        const podWidth = pod.offsetWidth || 480;
+        let left = (w - podWidth) / 2;
+        if (config.position === "left") left = Math.min(40, w * 0.04);
+        if (config.position === "right") left = w - podWidth - Math.min(40, w * 0.04);
+        pod.style.left = Math.max(8, left) + "px";
+      }
+
+      function mood(kind) {
+        const wave = kind === "happy" || kind === "caring";
+        hand.style.transition = "transform .5s ease";
+        hand.style.transformOrigin = "150px 175px";
+        hand.style.transform = wave ? "rotate(-12deg)" : "rotate(10deg)";
+        if (kind === "scold") {
+          browL.setAttribute("d", "M82 74 C86 78 94 79 98 80");
+          browR.setAttribute("d", "M118 74 C114 78 106 79 102 80");
+          mouth.setAttribute("d", "M90 121 C96 116 104 116 110 121");
+          cheekL.setAttribute("opacity", "0.5");
+          cheekR.setAttribute("opacity", "0.5");
+        } else if (kind === "sleepy") {
+          browL.setAttribute("d", "M82 80 C86 78 94 78 98 80");
+          browR.setAttribute("d", "M118 80 C114 78 106 78 102 80");
+          mouth.setAttribute("d", "M93 119 C98 121 103 121 108 119");
+          cheekL.setAttribute("opacity", "0.25");
+          cheekR.setAttribute("opacity", "0.25");
+        } else if (kind === "happy") {
+          browL.setAttribute("d", "M82 76 C86 71 94 71 98 75");
+          browR.setAttribute("d", "M118 76 C114 71 106 71 102 75");
+          mouth.setAttribute("d", "M88 116 C96 128 104 128 112 116");
+          cheekL.setAttribute("opacity", "0.55");
+          cheekR.setAttribute("opacity", "0.55");
+        } else {
+          browL.setAttribute("d", "M82 78 C86 74 94 74 98 77");
+          browR.setAttribute("d", "M118 78 C114 74 106 74 102 77");
+          mouth.setAttribute("d", "M91 118 C96 124 104 124 109 118");
+          cheekL.setAttribute("opacity", "0.4");
+          cheekR.setAttribute("opacity", "0.4");
         }
+      }
 
-        const MOUTHS = {
-          smile: "M-4.5 -40 Q0 -36.5 4.5 -40",
-          whee: "M-4.5 -40.5 Q0 -34 4.5 -40.5",
-          flat: "M-4 -39 L4 -39",
-        };
+      function paint(reminder) {
+        urdu.textContent = reminder.urdu;
+        english.textContent = reminder.en;
+        english.style.display = config.translation ? "" : "none";
+        mood(reminder.mood);
+        place();
+      }
 
-        // A character built out of animatable groups.
-        function makeChar(parent, p, opts) {
-          const o = opts || {};
-          const root = el("g", {}, parent);
-          const body = el("g", {}, root);
-
-          // legs: each pivots at the hip
-          const legs = [];
-          for (const side of [-1, 1]) {
-            const hip = el("g", { transform: `translate(${side * 8} -2)` }, body);
-            el("path", { d: "M0 0 L1 30", stroke: p.pants, "stroke-width": "9", "stroke-linecap": "round", fill: "none" }, hip);
-            const foot = el("g", { transform: "translate(1 30)" }, hip);
-            el("path", { d: "M0 0 L9 3", stroke: "#1b1430", "stroke-width": "7", "stroke-linecap": "round" }, foot);
-            legs.push({ hip, foot });
-          }
-
-          // torso
-          el("rect", { x: "-15", y: "-34", width: "30", height: "36", rx: "12", fill: p.shirt }, body);
-
-          // arms: each pivots at the shoulder
-          const arms = [];
-          for (const side of [-1, 1]) {
-            const sh = el("g", { transform: `translate(${side * 13} -27)` }, body);
-            el("path", { d: "M0 0 L0 -26", stroke: p.skin, "stroke-width": "7", "stroke-linecap": "round", fill: "none" }, sh);
-            arms.push(sh);
-          }
-
-          // head
-          const head = el("g", { transform: "translate(0 -34)" }, body);
-          el("circle", { cx: "0", cy: "-14", r: "15", fill: p.skin }, head);
-          const hair = el("g", {}, head);
-          el("path", { d: "M-15 -18 A15 15 0 0 1 15 -18 L15 -24 A15 15 0 0 0 -15 -24 Z", fill: p.hair }, hair);
-          const tuft = el("path", { d: "M-2 -29 Q4 -36 12 -32", stroke: p.hair, "stroke-width": "4", fill: "none", "stroke-linecap": "round" }, hair);
-          const eyeL = el("circle", { cx: "-5.5", cy: "-13", r: "2.5", fill: "#1b1430" }, head);
-          const eyeR = el("circle", { cx: "5.5", cy: "-13", r: "2.5", fill: "#1b1430" }, head);
-          const lidL = el("rect", { x: "-9", y: "-19.5", width: "7", height: "0", fill: p.skin }, head);
-          const lidR = el("rect", { x: "2", y: "-19.5", width: "7", height: "0", fill: p.skin }, head);
-          const mouth = el("path", { d: MOUTHS.smile, stroke: "#1b1430", "stroke-width": "1.8", fill: "none", "stroke-linecap": "round", transform: "translate(0 20)" }, head);
-          const blush = el("g", { opacity: "0" }, head);
-          el("circle", { cx: "-10", cy: "-8", r: "3", fill: "#ff7a6b", opacity: "0.5" }, blush);
-          el("circle", { cx: "10", cy: "-8", r: "3", fill: "#ff7a6b", opacity: "0.5" }, blush);
-
-          const seed = Math.random() * 10;
-          let nextBlink = seed + 1.5;
-          let blinkT = -1;
-
-          const api = {
-            root,
-            update(t, ctx) {
-              const c = ctx || {};
-              const swing = c.swing || 0; // -1..1 pendulum position
-              const speed = c.speed || 0; // 0..1 excitement
-              const wob = Math.sin(t * 2.1 + seed);
-
-              // torso leans back on the way up, tucks forward on the way down
-              const lean = c.seated ? Math.sin(t * 1.3 + seed) * 1.5 : -swing * 9 - speed * 4;
-              body.setAttribute("transform", `rotate(${lean.toFixed(2)})`);
-
-              // arms
-              if (c.seated) {
-                // one arm propped behind, the other resting — and sometimes waving
-                arms[0].setAttribute("transform", `translate(-13 -27) rotate(${(196 + wob * 3).toFixed(1)})`);
-                const waving = c.wave || 0;
-                arms[1].setAttribute("transform", `translate(13 -27) rotate(${(-168 + waving * 108).toFixed(1)})`);
-              } else if (c.loops) {
-                arms[0].setAttribute("transform", "translate(-13 -27) rotate(-16)");
-                arms[1].setAttribute("transform", "translate(13 -27) rotate(16)");
-              } else {
-                arms[0].setAttribute("transform", `translate(-13 -27) rotate(${(-16 - swing * 5).toFixed(1)})`);
-                arms[1].setAttribute("transform", `translate(13 -27) rotate(${(16 - swing * 5).toFixed(1)})`);
-              }
-
-              // legs kick out at the top of each arc
-              if (c.seated) {
-                // both legs stretched out the same way, feet gently bobbing
-                const a = -(70 + Math.sin(t * 1.8 + seed) * 7);
-                const b = -(62 + Math.sin(t * 1.8 + seed + 0.7) * 7);
-                legs[0].hip.setAttribute("transform", `translate(-8 -2) rotate(${a.toFixed(1)})`);
-                legs[1].hip.setAttribute("transform", `translate(8 -2) rotate(${b.toFixed(1)})`);
-                legs[0].foot.setAttribute("transform", `translate(1 30) rotate(${(-a - 30).toFixed(1)})`);
-                legs[1].foot.setAttribute("transform", `translate(1 30) rotate(${(-b - 30).toFixed(1)})`);
-              } else {
-                // legs kick out at the top of each arc
-                const kick = c.loops ? 30 : 18 + swing * 34 + speed * 10;
-                legs[0].hip.setAttribute("transform", `translate(-8 -2) rotate(${(kick * 0.9).toFixed(1)})`);
-                legs[1].hip.setAttribute("transform", `translate(8 -2) rotate(${(kick * -0.9 + 4).toFixed(1)})`);
-                legs[0].foot.setAttribute("transform", `translate(1 30) rotate(${(-kick * 0.9 - 10).toFixed(1)})`);
-                legs[1].foot.setAttribute("transform", `translate(1 30) rotate(${(kick * 0.9 - 10).toFixed(1)})`);
-              }
-
-              // head bobs and hair flaps
-              head.setAttribute("transform", `translate(0 -34) rotate(${(swing * 4 + wob * 1.2).toFixed(2)})`);
-              tuft.setAttribute("d", `M-2 -29 Q${(4 - swing * 5).toFixed(1)} ${(-36 - speed * 2).toFixed(1)} ${(12 - swing * 7).toFixed(1)} ${(-32 + Math.abs(swing) * 3).toFixed(1)}`);
-
-              // expression
-              mouth.setAttribute("d", speed > 0.55 || c.loops ? MOUTHS.whee : MOUTHS.smile);
-              blush.setAttribute("opacity", (Math.min(0.9, speed * 1.1)).toFixed(2));
-
-              // blinking
-              if (blinkT < 0 && t > nextBlink) blinkT = 0;
-              if (blinkT >= 0) {
-                blinkT += 1 / 60;
-                const h = blinkT < 0.07 ? (blinkT / 0.07) * 6 : blinkT < 0.16 ? (1 - (blinkT - 0.07) / 0.09) * 6 : 0;
-                lidL.setAttribute("height", h.toFixed(2));
-                lidR.setAttribute("height", h.toFixed(2));
-                if (blinkT > 0.16) {
-                  blinkT = -1;
-                  nextBlink = t + 2 + Math.random() * 4;
-                }
-              }
-
-              // eyes follow the cursor
-              const box = root.getBoundingClientRect();
-              const hx = box.left + box.width / 2;
-              const hy = box.top + box.height * 0.18;
-              const dx = Math.max(-1, Math.min(1, (cursor.x - hx) / 300)) * 2.6;
-              const dy = Math.max(-1, Math.min(1, (cursor.y - hy) / 300)) * 1.9;
-              eyeL.setAttribute("cx", (-5.5 + dx).toFixed(2));
-              eyeR.setAttribute("cx", (5.5 + dx).toFixed(2));
-              eyeL.setAttribute("cy", (-13 + dy).toFixed(2));
-              eyeR.setAttribute("cy", (-13 + dy).toFixed(2));
-            },
-          };
-          return api;
-        }
-
-        let parts = null;
-
-        function build() {
-          while (svg.firstChild) svg.removeChild(svg.firstChild);
-          parts = { riders: [] };
-
-          if (config.mode === "swing") {
-            const ax = window.innerWidth * config.anchor;
-            const pivot = el("g", { transform: `translate(${ax} 0)` });
-            // the bar it hangs from
-            el("rect", { x: "-42", y: "-6", width: "84", height: "7", rx: "3.5", fill: "#6b5a3c", opacity: "0.9" }, pivot);
-            const arm = el("g", {}, pivot);
-            parts.arm = arm;
-            const halfSeat = config.twoSeater ? 62 : 34;
-            const ropeL = el("path", { d: "", stroke: "#c8b58c", "stroke-width": "3", fill: "none" }, arm);
-            const ropeR = el("path", { d: "", stroke: "#c8b58c", "stroke-width": "3", fill: "none" }, arm);
-            parts.ropes = [ropeL, ropeR];
-            parts.halfSeat = halfSeat;
-            el("rect", { x: -halfSeat, y: config.rope, width: halfSeat * 2, height: "12", rx: "4", fill: "#8b5e34" }, arm);
-            el("rect", { x: -halfSeat, y: config.rope, width: halfSeat * 2, height: "4", rx: "2", fill: "#b07c46" }, arm);
-
-            const seatY = config.rope;
-            if (config.twoSeater) {
-              parts.riders.push(makeChar(arm, palettes[0], {}));
-              parts.riders.push(makeChar(arm, palettes[1], {}));
-              parts.riders[0].root.setAttribute("transform", `translate(-30 ${seatY}) scale(0.95)`);
-              parts.riders[1].root.setAttribute("transform", `translate(30 ${seatY}) scale(0.95)`);
-            } else {
-              parts.riders.push(makeChar(arm, palettes[config.palette % 2], {}));
-              parts.riders[0].root.setAttribute("transform", `translate(0 ${seatY})`);
-            }
-          } else {
-            const y = window.innerHeight - 6;
-            const left = config.corner === "left";
-            const base = left ? 90 : window.innerWidth - 90;
-            const spots = config.twoSeater
-              ? [
-                  { x: base, pal: config.palette % 2 },
-                  { x: base + (left ? 76 : -76), pal: (config.palette + 1) % 2 },
-                ]
-              : [{ x: base, pal: config.palette % 2 }];
-            for (const s of spots) {
-              const c = makeChar(svg, palettes[s.pal], {});
-              c.root.setAttribute("transform", `translate(${s.x} ${y - 30}) scale(1.05)`);
-              c.seated = true;
-              parts.riders.push(c);
-            }
-          }
-        }
-
-        function frame(now) {
-          const t = now / 1000;
-          const seated = config.mode === "sitter";
-          let swing = 0;
-          let speed = 0;
-
-          if (!seated && parts && parts.arm) {
-            const period = Math.max(0.6, config.period);
-            let deg;
-            if (config.loops) {
-              deg = ((t * 360) / Math.max(1.2, period)) % 360;
-              swing = Math.sin((deg * Math.PI) / 180);
-              speed = 1;
-            } else {
-              const phase = (2 * Math.PI * t) / period;
-              swing = Math.sin(phase);
-              deg = config.amplitude * swing;
-              // faster + wider = more excited
-              speed = Math.min(1, (config.amplitude / 80) * 0.6 + (2.6 / period) * 0.4 - 0.15);
-              speed = Math.max(0, speed) * Math.abs(Math.cos(phase));
-            }
-            parts.arm.setAttribute("transform", `rotate(${deg.toFixed(2)})`);
-            // ropes bow slightly with the swing
-            if (parts.ropes) {
-              const hs = parts.halfSeat - 6;
-              const bow = -swing * 6;
-              parts.ropes[0].setAttribute("d", `M${-hs} 0 Q${-hs + bow} ${config.rope / 2} ${-hs} ${config.rope}`);
-              parts.ropes[1].setAttribute("d", `M${hs} 0 Q${hs + bow} ${config.rope / 2} ${hs} ${config.rope}`);
-            }
-          }
-
-          if (parts && parts.riders) {
-            for (const r of parts.riders) {
-              const wave = seated ? Math.max(0, Math.sin(t * 0.55)) * Math.max(0, Math.sin(t * 7)) : 0;
-              r.update(t, { swing, speed, seated, loops: config.loops && !seated, wave });
-            }
-          }
-          requestAnimationFrame(frame);
-        }
-
-        function apply(next) {
-          Object.assign(config, next || {});
-          build();
-        }
-
-        window.addEventListener("resize", build);
-        window.addEventListener("mousemove", (e) => {
-          cursor = { x: e.clientX, y: e.clientY };
+      function show(reminder) {
+        clearTimeout(hideTimer);
+        paint(reminder);
+        requestAnimationFrame(() => {
+          pod.classList.add("in");
+          place();
         });
-        // config from the desktop app (tray menu)
-        if (window.swingers && window.swingers.onConfig) {
-          window.swingers.onConfig(apply);
-          if (window.swingers.onCursor) window.swingers.onCursor((p) => (cursor = p));
+        if (config.auto) {
+          hideTimer = setTimeout(hide, Math.max(3, config.visible) * 1000);
         }
-        // config from the web page hosting this in an iframe
-        window.addEventListener("message", (e) => {
-          if (e.data && e.data.type === "swingers:config") apply(e.data.config);
-        });
-        // let the host know we are ready for config
-        try {
-          if (window.parent && window.parent !== window)
-            window.parent.postMessage({ type: "swingers:ready" }, "*");
-        } catch (err) {
-          /* ignore */
+      }
+
+      function hide() {
+        pod.classList.remove("in");
+      }
+
+      function next() {
+        const list = pool();
+        index = (index + 1) % list.length;
+        show(list[index]);
+      }
+
+      function loop() {
+        clearInterval(visitTimer);
+        if (!config.auto) return;
+        visitTimer = setInterval(next, Math.max(6, config.interval) * 1000);
+      }
+
+      function apply(patch) {
+        config = { ...config, ...patch };
+        if (!Array.isArray(config.enabled) || !config.enabled.length) config.enabled = defaults.enabled;
+        const list = pool();
+        if (typeof patch.scenario === "number") {
+          const wanted = REMINDERS[patch.scenario % REMINDERS.length];
+          const at = list.findIndex((r) => r.key === wanted.key);
+          index = at < 0 ? 0 : at;
         }
-        // config from the query string
-        const q = new URLSearchParams(location.search);
-        const initial = {};
-        for (const [k, v] of q.entries()) {
-          if (v === "true" || v === "false") initial[k] = v === "true";
-          else initial[k] = isNaN(Number(v)) ? v : Number(v);
-        }
-        apply(initial);
-        requestAnimationFrame(frame);
-      })();
+        index = Math.min(index, list.length - 1);
+        show(list[index]);
+        loop();
+      }
+
+      // blinking + gentle idle life
+      setInterval(() => {
+        const h = 9;
+        lidL.setAttribute("height", h);
+        lidR.setAttribute("height", h);
+        setTimeout(() => {
+          lidL.setAttribute("height", 0);
+          lidR.setAttribute("height", 0);
+        }, 130);
+      }, 3800);
+
+      // her eyes follow the cursor
+      function look(x, y) {
+        const box = svg.getBoundingClientRect();
+        if (!box.width) return;
+        const cx = box.left + box.width / 2;
+        const cy = box.top + box.height * 0.38;
+        const dx = Math.max(-1, Math.min(1, (x - cx) / 380));
+        const dy = Math.max(-1, Math.min(1, (y - cy) / 320));
+        pupils.setAttribute("transform", `translate(${dx * 2.6} ${dy * 2})`);
+      }
+      window.addEventListener("mousemove", (e) => look(e.clientX, e.clientY));
+      window.addEventListener("resize", place);
+
+      // config via query string (web demo default), postMessage (iframe) or IPC (Electron)
+      const params = new URLSearchParams(location.search);
+      const fromQuery = {};
+      for (const [k, v] of params) {
+        if (k === "enabled") fromQuery.enabled = v.split(",");
+        else if (v === "true" || v === "false") fromQuery[k] = v === "true";
+        else fromQuery[k] = isNaN(Number(v)) ? v : Number(v);
+      }
+
+      window.addEventListener("message", (e) => {
+        if (e.data && e.data.type === "ammi:config") apply(e.data.config || {});
+      });
+      if (window.ammi) {
+        window.ammi.onConfig((incoming) => apply(incoming || {}));
+        window.ammi.onCursor(({ x, y }) => look(x, y));
+        window.ammi.onSay && window.ammi.onSay(() => next());
+      }
+
+      apply(fromQuery);
+      if (window.parent !== window) window.parent.postMessage({ type: "ammi:ready" }, "*");
     </script>
   </body>
 </html>
