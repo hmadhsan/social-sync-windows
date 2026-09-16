@@ -2,11 +2,28 @@ const { app, BrowserWindow, Tray, Menu, screen, nativeImage, shell } = require("
 const path = require("path");
 const fs = require("fs");
 
-const APP_NAME = "Danglers";
+const APP_NAME = "Ammi";
 app.setName(APP_NAME);
-if (process.platform === "win32") app.setAppUserModelId("wtf.danglers.app");
+if (process.platform === "win32") app.setAppUserModelId("app.ammi.desktop");
 
 const CONFIG_PATH = () => path.join(app.getPath("userData"), "config.json");
+
+const REMINDERS = [
+  { key: "water", label: "Pani pee lo" },
+  { key: "food", label: "Khana kha liya?" },
+  { key: "break", label: "Thora chal lo" },
+  { key: "eyes", label: "Ankhon ko aaram do" },
+  { key: "tea", label: "Chai bana doon?" },
+  { key: "posture", label: "Seedhi tarhan baitho" },
+  { key: "late", label: "Ab so jao" },
+  { key: "charger", label: "Charger laga lo" },
+  { key: "medicine", label: "Dawai le li?" },
+  { key: "morning", label: "Subha bakhair" },
+  { key: "call", label: "Phone karna" },
+  { key: "praise", label: "Shabash mera bacha" },
+  { key: "phone", label: "Phone rakh do" },
+  { key: "dua", label: "Duaon mein yaad" },
+];
 
 function iconImage() {
   const image = nativeImage.createFromPath(path.join(__dirname, "..", "build", "tray.png"));
@@ -23,8 +40,8 @@ function ensureShortcuts() {
     target: process.execPath,
     icon: process.execPath,
     iconIndex: 0,
-    description: `${APP_NAME} — unnecessary shit on your screen`,
-    appUserModelId: "wtf.danglers.app",
+    description: `${APP_NAME} — someone's looking out for you`,
+    appUserModelId: "app.ammi.desktop",
   };
   const targets = [
     path.join(app.getPath("desktop"), `${APP_NAME}.lnk`),
@@ -53,15 +70,13 @@ function startsWithWindows() {
 }
 
 const defaults = {
-  mode: "swing",
-  anchor: 0.5,
-  rope: 190,
-  amplitude: 34,
-  period: 2.6,
-  loops: false,
-  twoSeater: false,
-  corner: "left",
-  palette: 0,
+  position: "center",
+  interval: 25 * 60,
+  visible: 9,
+  translation: true,
+  scale: 1,
+  auto: true,
+  enabled: REMINDERS.map((r) => r.key),
 };
 
 let config = { ...defaults };
@@ -75,6 +90,7 @@ function loadConfig() {
   } catch {
     config = { ...defaults };
   }
+  if (!Array.isArray(config.enabled) || !config.enabled.length) config.enabled = defaults.enabled;
 }
 
 function saveConfig() {
@@ -94,6 +110,12 @@ function push() {
 function set(patch) {
   config = { ...config, ...patch };
   push();
+}
+
+function toggleReminder(key) {
+  const on = config.enabled.includes(key);
+  const next = on ? config.enabled.filter((k) => k !== key) : [...config.enabled, key];
+  set({ enabled: next.length ? next : config.enabled });
 }
 
 function createWindow() {
@@ -140,49 +162,61 @@ function buildTray() {
   if (!tray) {
     const image = iconImage();
     tray = new Tray(image.isEmpty() ? image : image.resize({ width: 16, height: 16 }));
-    tray.setToolTip(APP_NAME);
+    tray.setToolTip(`${APP_NAME} — someone's looking out for you`);
   }
   tray.setContextMenu(
     Menu.buildFromTemplate([
-      { label: APP_NAME, enabled: false },
-      { type: "separator" },
-      radio("Hang a swing", config.mode === "swing", () => set({ mode: "swing" })),
-      radio("Park a sitter", config.mode === "sitter", () => set({ mode: "sitter" })),
+      { label: `${APP_NAME}`, enabled: false },
       { type: "separator" },
       {
-        label: "Rope length",
-        submenu: [120, 190, 280, 380].map((v) => radio(`${v} px`, config.rope === v, () => set({ rope: v }))),
+        label: "Say something now",
+        click: () => win && !win.isDestroyed() && win.webContents.send("say"),
       },
+      { type: "separator" },
       {
-        label: "Amplitude",
-        submenu: [16, 34, 55, 80].map((v) => radio(`${v}°`, config.amplitude === v, () => set({ amplitude: v }))),
-      },
-      {
-        label: "Speed",
+        label: "How often she checks in",
         submenu: [
-          radio("Lazy", config.period === 4, () => set({ period: 4 })),
-          radio("Normal", config.period === 2.6, () => set({ period: 2.6 })),
-          radio("Hyper", config.period === 1.6, () => set({ period: 1.6 })),
+          ["Every 10 minutes", 10 * 60],
+          ["Every 25 minutes", 25 * 60],
+          ["Every hour", 60 * 60],
+          ["Every 2 hours", 120 * 60],
+        ].map(([label, v]) => radio(label, config.interval === v, () => set({ interval: v }))),
+      },
+      {
+        label: "How long she stays",
+        submenu: [
+          ["A quick word (6s)", 6],
+          ["Normal (9s)", 9],
+          ["A proper chat (16s)", 16],
+        ].map(([label, v]) => radio(label, config.visible === v, () => set({ visible: v }))),
+      },
+      {
+        label: "Where she appears",
+        submenu: [
+          radio("Top left", config.position === "left", () => set({ position: "left" })),
+          radio("Top centre", config.position === "center", () => set({ position: "center" })),
+          radio("Top right", config.position === "right", () => set({ position: "right" })),
         ],
       },
       {
-        label: "Position",
+        label: "Her size",
         submenu: [
-          radio("Left", config.anchor === 0.25, () => set({ anchor: 0.25 })),
-          radio("Middle", config.anchor === 0.5, () => set({ anchor: 0.5 })),
-          radio("Right", config.anchor === 0.75, () => set({ anchor: 0.75 })),
-        ],
+          ["Small", 0.8],
+          ["Normal", 1],
+          ["Large", 1.3],
+        ].map(([label, v]) => radio(label, config.scale === v, () => set({ scale: v }))),
       },
       { type: "separator" },
-      radio("Full loops", config.loops, () => set({ loops: !config.loops })),
-      radio("Two-seater", config.twoSeater, () => set({ twoSeater: !config.twoSeater })),
       {
-        label: "Sitter corner",
-        submenu: [
-          radio("Left", config.corner === "left", () => set({ corner: "left" })),
-          radio("Right", config.corner === "right", () => set({ corner: "right" })),
-        ],
+        label: "What she reminds you about",
+        submenu: REMINDERS.map((r) =>
+          radio(r.label, config.enabled.includes(r.key), () => toggleReminder(r.key)),
+        ),
       },
+      radio("Show English translation", config.translation, () =>
+        set({ translation: !config.translation }),
+      ),
+      radio("Pause her reminders", !config.auto, () => set({ auto: !config.auto })),
       { type: "separator" },
       radio("Start with Windows", startsWithWindows(), () => {
         try {
@@ -201,8 +235,8 @@ function buildTray() {
               target: process.execPath,
               icon: process.execPath,
               iconIndex: 0,
-              description: `${APP_NAME} — unnecessary shit on your screen`,
-              appUserModelId: "wtf.danglers.app",
+              description: `${APP_NAME} — someone's looking out for you`,
+              appUserModelId: "app.ammi.desktop",
             });
           } catch {
             /* ignore */
