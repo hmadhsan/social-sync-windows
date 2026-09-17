@@ -248,6 +248,13 @@ ipcMain.on("dashboard:close", () => {
   }
 });
 
+ipcMain.on("set-ignore-mouse-events", (event, ignore, options) => {
+  const targetWin = BrowserWindow.fromWebContents(event.sender);
+  if (targetWin && !targetWin.isDestroyed()) {
+    targetWin.setIgnoreMouseEvents(ignore, options);
+  }
+});
+
 function createWindow() {
   const { bounds } = screen.getPrimaryDisplay();
   win = new BrowserWindow({

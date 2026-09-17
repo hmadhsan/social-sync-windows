@@ -14,7 +14,8 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "pack:mac": "node electron/build-mac.mjs"
+    "pack:mac": "node electron/build-mac.mjs",
+    "pack:win": "npx -y electron-builder --win nsis --x64"
   },
   "overrides": {
     "rolldown": "1.2.1"
@@ -97,11 +98,28 @@
   "build": {
     "appId": "app.ammi.desktop",
     "productName": "Ammi",
+    "directories": {
+      "output": "dist-electron"
+    },
     "files": [
       "build/**/*",
       "electron/**/*",
-      "public/**/*"
+      "public/**/*",
+      "!public/*.exe",
+      "!public/*.zip"
     ],
+    "win": {
+      "target": ["nsis"],
+      "icon": "build/icon.png",
+      "artifactName": "Ammi-Setup.${ext}"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "runAfterFinish": true
+    },
     "mac": {
       "target": ["dmg"],
       "category": "public.app-category.lifestyle",

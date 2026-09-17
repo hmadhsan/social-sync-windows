@@ -33,3 +33,4 @@ dist-ssr
 *.zip
 *.exe
 public/*.exe
+dist-electron/

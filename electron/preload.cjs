@@ -11,4 +11,5 @@ contextBridge.exposeInMainWorld("ammi", {
   previewPowerup: (name) => ipcRenderer.send("powerup:preview", name),
   minimizeDashboard: () => ipcRenderer.send("dashboard:minimize"),
   closeDashboard: () => ipcRenderer.send("dashboard:close"),
+  setIgnoreMouseEvents: (ignore, options) => ipcRenderer.send("set-ignore-mouse-events", ignore, options),
 });

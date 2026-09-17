@@ -117,7 +117,17 @@ const readmeMac = `Ammi — someone's looking out for you (macOS)
    - Toggle Start at Login
 `;
 fs.writeFileSync(readmeMacPath, readmeMac, "utf8");
-execSync(`"${SEVEN_ZIP}" a "${rootZip}" "${readmeMacPath}"`, { stdio: "inherit" });
+
+sleep(2500);
+for (let attempt = 1; attempt <= 3; attempt++) {
+  try {
+    execSync(`"${SEVEN_ZIP}" a "${rootZip}" "${readmeMacPath}"`, { stdio: "inherit" });
+    break;
+  } catch (err) {
+    if (attempt === 3) throw err;
+    sleep(2000);
+  }
+}
 
 // [5/5] Deploy to public/
 console.log("📦 [5/5] Deploying Ammi-mac.zip to website public folder...");
