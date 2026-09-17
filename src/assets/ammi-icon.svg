@@ -1,0 +1,34 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="120" y1="120" x2="904" y2="904" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FCE7F3" />
+      <stop offset="1" stop-color="#FDF2F8" />
+    </linearGradient>
+    <linearGradient id="dupatta" x1="232" y1="196" x2="792" y2="860" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#BE185D" />
+      <stop offset="1" stop-color="#9D174D" />
+    </linearGradient>
+  </defs>
+  <rect x="32" y="32" width="960" height="960" rx="224" fill="url(#bg)" />
+  <path
+    d="M512 172C386.6 172 280 269.8 248 414.6C235.2 472.3 231 535.8 231 610.2C231 730.3 286.5 834.8 384.4 892H639.6C737.5 834.8 793 730.3 793 610.2C793 535.8 788.8 472.3 776 414.6C744 269.8 637.4 172 512 172Z"
+    fill="url(#dupatta)"
+  />
+  <path
+    d="M512 258C412.8 258 338 337.7 338 442.1V497.9C338 602.3 412.8 682 512 682C611.2 682 686 602.3 686 497.9V442.1C686 337.7 611.2 258 512 258Z"
+    fill="#F2C8A4"
+  />
+  <path
+    d="M512 233C446.2 233 388.6 271.5 358.7 330.6C400.9 315 456.6 308 512 308C567.4 308 623.1 315 665.3 330.6C635.4 271.5 577.8 233 512 233Z"
+    fill="#5B341D"
+  />
+  <ellipse cx="446" cy="464" rx="24" ry="28" fill="#2B1A11" />
+  <ellipse cx="578" cy="464" rx="24" ry="28" fill="#2B1A11" />
+  <path d="M462 563C474.9 583.8 491.3 596 512 596C532.7 596 549.1 583.8 562 563" stroke="#8A4B2D" stroke-width="18" stroke-linecap="round"/>
+  <path
+    d="M357 706C406.6 660 459.2 636 512 636C564.8 636 617.4 660 667 706V892H357V706Z"
+    fill="#C2410C"
+  />
+  <circle cx="760" cy="264" r="44" fill="#F59E0B" fill-opacity="0.85" />
+  <circle cx="786" cy="238" r="16" fill="#FCD34D" />
+</svg>

@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import appIcon from "@/assets/ammi-icon.png";
+import appIcon from "@/assets/ammi-icon.svg";
 import winBuild from "@/assets/ammi-win64.zip.asset.json";
 
 export const Route = createFileRoute("/")({
