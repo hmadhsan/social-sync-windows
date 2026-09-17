@@ -91,6 +91,11 @@
     <div id="stage">
       <div id="pod">
         <svg id="ammi" viewBox="0 0 200 250" aria-hidden="true">
+          <defs>
+            <clipPath id="customFaceClip">
+              <ellipse cx="100" cy="94" rx="38" ry="42" />
+            </clipPath>
+          </defs>
           <g id="swayer">
             <!-- hanging dupatta / body coming down from the top edge -->
             <path
@@ -173,6 +178,17 @@
               stroke-width="3.5"
               fill="none"
               stroke-linecap="round"
+            />
+            <!-- custom uploaded mom photo face overlay -->
+            <image
+              id="customPhotoImg"
+              x="62"
+              y="52"
+              width="76"
+              height="84"
+              preserveAspectRatio="xMidYMid slice"
+              clip-path="url(#customFaceClip)"
+              style="display: none;"
             />
             <!-- dupatta over the head -->
             <path
@@ -377,6 +393,7 @@
       const cheekL = document.getElementById("cheekL");
       const cheekR = document.getElementById("cheekR");
       const hand = document.getElementById("hand");
+      const customPhotoImg = document.getElementById("customPhotoImg");
 
       let index = 0;
       let visitTimer = null;
@@ -483,6 +500,14 @@
       function apply(patch) {
         config = { ...config, ...patch };
         if (!Array.isArray(config.enabled) || !config.enabled.length) config.enabled = defaults.enabled;
+        if (customPhotoImg) {
+          if (config.customPhoto) {
+            customPhotoImg.setAttribute("href", config.customPhoto);
+            customPhotoImg.style.display = "block";
+          } else {
+            customPhotoImg.style.display = "none";
+          }
+        }
         const list = pool();
         if (typeof patch.scenario === "number") {
           const wanted = REMINDERS[patch.scenario % REMINDERS.length];

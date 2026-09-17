@@ -46,6 +46,43 @@ function Index() {
   const [isDismissed, setIsDismissed] = useState(false);
   const [previewReminder, setPreviewReminder] = useState(1);
   const [quietHours, setQuietHours] = useState(true);
+  const [customPhoto, setCustomPhoto] = useState<string | null>(null);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("ammi_custom_photo");
+      if (saved) setCustomPhoto(saved);
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      setCustomPhoto(result);
+      try {
+        localStorage.setItem("ammi_custom_photo", result);
+      } catch {
+        /* storage limit fallback */
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleResetPhoto = () => {
+    setCustomPhoto(null);
+    try {
+      localStorage.removeItem("ammi_custom_photo");
+    } catch {
+      /* ignore */
+    }
+  };
+
+  const avatarSrc = customPhoto || appIcon;
 
   // Auto-advance demo reminder every 4.5 seconds if not paused and not dismissed
   useEffect(() => {
@@ -80,13 +117,38 @@ function Index() {
           <a href="/" className="text-[32px] sm:text-[34px] font-bold tracking-[-1.4px] leading-none text-[#151515]">
             ammi
           </a>
-          <button
-            type="button"
-            onClick={handleSaySomething}
-            className="inline-flex items-center gap-2 rounded-full border border-[#deded8] bg-white/80 backdrop-blur px-4 py-2 text-sm font-medium text-[#151515] transition-all hover:bg-white hover:shadow-sm"
-          >
-            <span>Say something</span>
-          </button>
+          <div className="flex items-center gap-3">
+            <input
+              type="file"
+              id="mom-photo-input"
+              accept="image/*"
+              className="hidden"
+              onChange={handlePhotoUpload}
+            />
+            <label
+              htmlFor="mom-photo-input"
+              className="inline-flex items-center gap-2 rounded-full border border-[#deded8] bg-white/80 backdrop-blur px-4 py-2 text-sm font-medium text-[#151515] transition-all hover:bg-white hover:shadow-sm cursor-pointer"
+            >
+              <span>{customPhoto ? "📸 Change Mom's Photo" : "📷 Upload Mom's Photo"}</span>
+            </label>
+            {customPhoto && (
+              <button
+                type="button"
+                onClick={handleResetPhoto}
+                className="text-xs text-[#727270] hover:text-[#151515] underline px-2 py-1"
+                title="Revert to default avatar"
+              >
+                Reset photo
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={handleSaySomething}
+              className="inline-flex items-center gap-2 rounded-full border border-[#deded8] bg-white/80 backdrop-blur px-4 py-2 text-sm font-medium text-[#151515] transition-all hover:bg-white hover:shadow-sm"
+            >
+              <span>Say something</span>
+            </button>
+          </div>
         </header>
 
         {/* The Live Interactive Notch Demo */}
@@ -95,7 +157,7 @@ function Index() {
           <div className="maaa-notch group pointer-events-auto cursor-pointer shadow-md" onClick={handleSaySomething} title="Click to hear Ammi speak">
             <div className="absolute bottom-0 left-1/2 -translate-x-1/2 size-[92px] sm:size-[104px] overflow-hidden rounded-full transition-transform duration-300 group-hover:scale-105">
               <img
-                src={appIcon}
+                src={avatarSrc}
                 alt="Ammi avatar portrait"
                 width={104}
                 height={104}
@@ -244,7 +306,7 @@ function Index() {
               01 / A little fuel
             </p>
             <div className="size-[110px] rounded-2xl overflow-hidden mb-6 shadow-sm border border-[#e8e8e2]">
-              <img src={appIcon} alt="Ammi reminder avatar" width={110} height={110} className="size-full object-cover" />
+              <img src={avatarSrc} alt="Ammi reminder avatar" width={110} height={110} className="size-full object-cover" />
             </div>
             <h3 className="text-[25px] font-normal tracking-[-0.7px] leading-[1.15] text-[#151515]">
               Khana kha liya?
@@ -261,7 +323,7 @@ function Index() {
               02 / A little pause
             </p>
             <div className="size-[110px] rounded-2xl overflow-hidden mb-6 shadow-sm border border-[#e8e8e2]">
-              <img src={appIcon} alt="Ammi reminder avatar" width={110} height={110} className="size-full object-cover" />
+              <img src={avatarSrc} alt="Ammi reminder avatar" width={110} height={110} className="size-full object-cover" />
             </div>
             <h3 className="text-[25px] font-normal tracking-[-0.7px] leading-[1.15] text-[#151515]">
               Pani pee lo.
@@ -278,7 +340,7 @@ function Index() {
               03 / A little care
             </p>
             <div className="size-[110px] rounded-2xl overflow-hidden mb-6 shadow-sm border border-[#e8e8e2]">
-              <img src={appIcon} alt="Ammi reminder avatar" width={110} height={110} className="size-full object-cover" />
+              <img src={avatarSrc} alt="Ammi reminder avatar" width={110} height={110} className="size-full object-cover" />
             </div>
             <h3 className="text-[25px] font-normal tracking-[-0.7px] leading-[1.15] text-[#151515]">
               Seedhi tarhan baitho.
@@ -309,19 +371,19 @@ function Index() {
           {/* Portrait Row with subtle elevation variation */}
           <div className="flex justify-center items-center gap-3 sm:gap-4 my-10">
             <div className="size-20 sm:size-24 rounded-full overflow-hidden shadow-sm border border-white/60">
-              <img src={appIcon} alt="Ammi portrait" className="size-full object-cover" />
+              <img src={avatarSrc} alt="Ammi portrait" className="size-full object-cover" />
             </div>
             <div className="size-20 sm:size-24 rounded-full overflow-hidden shadow-sm border border-white/60 translate-y-3">
-              <img src={appIcon} alt="Ammi portrait" className="size-full object-cover" />
+              <img src={avatarSrc} alt="Ammi portrait" className="size-full object-cover" />
             </div>
             <div className="size-24 sm:size-28 rounded-full overflow-hidden shadow-md border-2 border-white scale-105">
-              <img src={appIcon} alt="Ammi portrait" className="size-full object-cover" />
+              <img src={avatarSrc} alt="Ammi portrait" className="size-full object-cover" />
             </div>
             <div className="size-20 sm:size-24 rounded-full overflow-hidden shadow-sm border border-white/60 translate-y-3">
-              <img src={appIcon} alt="Ammi portrait" className="size-full object-cover" />
+              <img src={avatarSrc} alt="Ammi portrait" className="size-full object-cover" />
             </div>
             <div className="size-20 sm:size-24 rounded-full overflow-hidden shadow-sm border border-white/60">
-              <img src={appIcon} alt="Ammi portrait" className="size-full object-cover" />
+              <img src={avatarSrc} alt="Ammi portrait" className="size-full object-cover" />
             </div>
           </div>
 
@@ -497,7 +559,7 @@ function Index() {
           ========================================================= */}
       <section className="border-t border-[#deded8] px-6 py-28 text-center">
         <div className="size-24 rounded-full overflow-hidden mx-auto mb-6 shadow-md border-2 border-white">
-          <img src={appIcon} alt="Ammi avatar portrait" className="size-full object-cover" />
+          <img src={avatarSrc} alt="Ammi avatar portrait" className="size-full object-cover" />
         </div>
         <h2 className="text-[44px] sm:text-[56px] font-normal tracking-[-2px] leading-[1.1] text-[#151515]">
           A little home.<br />Right here.

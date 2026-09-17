@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Tray, Menu, screen, nativeImage, shell, ipcMain } = require("electron");
+const { app, BrowserWindow, Tray, Menu, screen, nativeImage, shell, ipcMain, dialog } = require("electron");
 const path = require("path");
 const fs = require("fs");
 
@@ -79,6 +79,7 @@ const defaults = {
   language: "urdu",
   energy: "playful",
   onboardingComplete: false,
+  customPhoto: null,
   enabled: REMINDERS.map((r) => r.key),
 };
 
@@ -148,10 +149,39 @@ function createOnboardingWindow() {
   onboardingWin.loadFile(path.join(__dirname, "..", "public", "onboarding.html"));
 }
 
+async function handleSelectPhoto() {
+  const result = await dialog.showOpenDialog({
+    title: "Select Mom's Photo",
+    properties: ["openFile"],
+    filters: [{ name: "Images", extensions: ["jpg", "png", "jpeg", "webp"] }],
+  });
+  if (result.canceled || !result.filePaths.length) return null;
+  const filePath = result.filePaths[0];
+  try {
+    const fileData = fs.readFileSync(filePath);
+    const ext = path.extname(filePath).toLowerCase();
+    const mime = ext === ".png" ? "image/png" : ext === ".webp" ? "image/webp" : "image/jpeg";
+    const dataUrl = `data:${mime};base64,${fileData.toString("base64")}`;
+    set({ customPhoto: dataUrl });
+    return dataUrl;
+  } catch {
+    return null;
+  }
+}
+
+ipcMain.handle("photo:select", async () => {
+  return await handleSelectPhoto();
+});
+
+ipcMain.on("photo:remove", () => {
+  set({ customPhoto: null });
+});
+
 ipcMain.on("onboarding:finish", (_e, data) => {
   if (data) {
     if (data.language) config.language = data.language;
     if (data.energy) config.energy = data.energy;
+    if (data.customPhoto !== undefined) config.customPhoto = data.customPhoto;
   }
   config.onboardingComplete = true;
   saveConfig();
@@ -286,6 +316,20 @@ function buildTray() {
       ),
       radio("Pause her reminders", !config.auto, () => set({ auto: !config.auto })),
       { type: "separator" },
+      {
+        label: "Change Mom's photo...",
+        click: async () => {
+          await handleSelectPhoto();
+        },
+      },
+      ...(config.customPhoto
+        ? [
+            {
+              label: "Reset to default photo",
+              click: () => set({ customPhoto: null }),
+            },
+          ]
+        : []),
       {
         label: "Set up again...",
         click: () => createOnboardingWindow(),
