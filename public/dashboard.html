@@ -1,0 +1,1741 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Ammi</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        user-select: none;
+      }
+      html,
+      body {
+        height: 100%;
+        background: #000000;
+        color: #ffffff;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        overflow: hidden;
+      }
+      .app-layout {
+        display: flex;
+        height: 100vh;
+        width: 100vw;
+        background: #000000;
+      }
+
+      /* Custom Titlebar for Dragging */
+      .titlebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 38px;
+        -webkit-app-region: drag;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        padding: 0 16px;
+        z-index: 100;
+      }
+      .window-controls {
+        display: flex;
+        gap: 8px;
+        -webkit-app-region: no-drag;
+      }
+      .win-btn {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: #181818;
+        color: #888888;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 13px;
+        transition: all 0.15s ease;
+      }
+      .win-btn:hover {
+        background: #282828;
+        color: #ffffff;
+      }
+      .win-btn.close:hover {
+        background: #e81123;
+        color: #ffffff;
+        border-color: #e81123;
+      }
+
+      /* Left Sidebar */
+      .sidebar {
+        width: 228px;
+        background: #000000;
+        border-right: 1px solid rgba(255, 255, 255, 0.07);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 24px 14px 20px;
+        flex-shrink: 0;
+        z-index: 10;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 4px 12px 24px;
+        color: #ffffff;
+        font-size: 20px;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+        cursor: default;
+      }
+      .brand-heart {
+        color: #ffffff;
+        font-size: 16px;
+      }
+
+      .nav-list {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        list-style: none;
+      }
+      .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 9px 14px;
+        border-radius: 10px;
+        color: #888888;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.15s ease;
+      }
+      .nav-item:hover {
+        background: #121212;
+        color: #ffffff;
+      }
+      .nav-item.active {
+        background: #202020;
+        color: #ffffff;
+        font-weight: 600;
+      }
+      .nav-item svg {
+        width: 17px;
+        height: 17px;
+        flex-shrink: 0;
+      }
+
+      .sidebar-bottom {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding-top: 16px;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+      }
+      .btn-buy-pro {
+        width: 100%;
+        background: #ffffff;
+        color: #000000;
+        border: none;
+        border-radius: 9999px;
+        padding: 10px 0;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.15s ease, background 0.15s ease;
+      }
+      .btn-buy-pro:hover {
+        background: #f0f0f0;
+        transform: scale(1.02);
+      }
+      .sidebar-link {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #777777;
+        font-size: 13px;
+        cursor: pointer;
+        padding: 4px 8px;
+        border-radius: 6px;
+        transition: color 0.15s ease;
+      }
+      .sidebar-link:hover {
+        color: #bbbbbb;
+      }
+      .sidebar-link svg {
+        width: 15px;
+        height: 15px;
+      }
+
+      /* Main Content Viewport */
+      .main-content {
+        flex: 1;
+        overflow-y: auto;
+        padding: 50px 48px 48px;
+        background: #000000;
+      }
+      .tab-view {
+        display: none;
+        animation: fadeIn 0.25s ease;
+        max-width: 680px;
+        margin: 0 auto;
+      }
+      .tab-view.active {
+        display: block;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(6px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* View Headings */
+      .view-header {
+        margin-bottom: 24px;
+      }
+      .view-title {
+        font-size: 30px;
+        font-weight: 700;
+        letter-spacing: -0.8px;
+        color: #ffffff;
+      }
+      .view-subtitle {
+        font-size: 14px;
+        color: #777777;
+        margin-top: 4px;
+      }
+
+      /* =========================================================
+         TAB 1: TODAY VIEW
+         ========================================================= */
+      .today-hero {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 24px 0 32px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        margin-bottom: 28px;
+      }
+      .today-avatar-wrap {
+        width: 140px;
+        height: 120px;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        margin-bottom: 16px;
+        cursor: pointer;
+        transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      .today-avatar-wrap:hover {
+        transform: translateY(-4px) scale(1.04);
+      }
+      .today-avatar-wrap img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+      .today-phrase {
+        font-size: 26px;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+        color: #ffffff;
+        margin-bottom: 6px;
+      }
+      .today-meta {
+        font-size: 14px;
+        color: #777777;
+      }
+
+      .today-section-label {
+        font-size: 13px;
+        font-weight: 600;
+        color: #888888;
+        margin-bottom: 12px;
+        display: block;
+      }
+      .today-card {
+        background: #0f0f0f;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 16px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+        transition: background 0.15s ease;
+      }
+      .today-card:hover {
+        background: #141414;
+      }
+      .today-card-left {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+      .card-icon-box {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        background: #181818;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+      }
+      .card-icon-box svg {
+        width: 18px;
+        height: 18px;
+      }
+      .card-title {
+        font-size: 15px;
+        font-weight: 600;
+        color: #ffffff;
+      }
+      .card-sub {
+        font-size: 13px;
+        color: #777777;
+        margin-top: 2px;
+      }
+      .btn-card-action {
+        background: #222222;
+        color: #ffffff;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 6px 14px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.15s ease;
+      }
+      .btn-card-action:hover {
+        background: #2d2d2d;
+      }
+
+      /* =========================================================
+         TAB 2: PERSONALIZE VIEW
+         ========================================================= */
+      .section-block {
+        margin-bottom: 34px;
+      }
+      .section-label {
+        font-size: 14px;
+        font-weight: 600;
+        color: #ffffff;
+        margin-bottom: 12px;
+        display: block;
+      }
+      .tone-segmented {
+        background: #121212;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 14px;
+        padding: 4px;
+        display: flex;
+        gap: 4px;
+      }
+      .tone-pill {
+        flex: 1;
+        padding: 9px 0;
+        background: transparent;
+        color: #888888;
+        border: none;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        text-align: center;
+      }
+      .tone-pill:hover {
+        color: #ffffff;
+      }
+      .tone-pill.active {
+        background: #2b2b2b;
+        color: #ffffff;
+        font-weight: 600;
+      }
+
+      .appearance-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 14px;
+      }
+      .appearance-card {
+        background: #0d0d0d;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 18px 12px 14px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-between;
+        text-align: center;
+        cursor: pointer;
+        position: relative;
+        min-height: 144px;
+        transition: all 0.2s ease;
+      }
+      .appearance-card:hover {
+        background: #141414;
+        border-color: rgba(255, 255, 255, 0.18);
+      }
+      .appearance-card.selected {
+        border: 1.5px solid rgba(255, 255, 255, 0.85);
+        background: #141414;
+      }
+      .check-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #181818;
+        border: 1.5px solid #ffffff;
+        color: #ffffff;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        font-weight: 700;
+      }
+      .appearance-card.selected .check-badge {
+        display: flex;
+      }
+      .avatar-thumb {
+        width: 100px;
+        height: 84px;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        margin-bottom: 8px;
+      }
+      .avatar-thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+      .avatar-name {
+        font-size: 13px;
+        font-weight: 500;
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+      .lock-icon {
+        font-size: 11px;
+        color: #777777;
+      }
+
+      /* =========================================================
+         TAB 3: POWER-UPS VIEW
+         ========================================================= */
+      .pro-banner {
+        background: #111111;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 18px 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 24px;
+      }
+      .pro-badge {
+        background: #2a2a2a;
+        color: #ffffff;
+        font-size: 10px;
+        font-weight: 700;
+        padding: 2px 6px;
+        border-radius: 4px;
+        margin-left: 6px;
+        vertical-align: middle;
+      }
+      .btn-unlock-pro {
+        background: #1c1c1c;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        color: #ffffff;
+        padding: 9px 18px;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.15s ease;
+      }
+      .btn-unlock-pro:hover {
+        background: #282828;
+      }
+
+      .powerup-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+      }
+      .powerup-card {
+        background: #0f0f0f;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 18px;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+      }
+      .powerup-img-wrap {
+        width: 100%;
+        height: 190px;
+        border-radius: 14px;
+        overflow: hidden;
+        background: #000000;
+        margin-bottom: 14px;
+      }
+      .powerup-img-wrap img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .powerup-title {
+        font-size: 17px;
+        font-weight: 700;
+        color: #ffffff;
+        margin-bottom: 4px;
+      }
+      .powerup-sub {
+        font-size: 13px;
+        color: #777777;
+        margin-bottom: 14px;
+      }
+      .btn-preview-powerup {
+        background: #222222;
+        color: #ffffff;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 10px;
+        padding: 10px 0;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        margin-top: auto;
+      }
+      .btn-preview-powerup:hover {
+        background: #2e2e2e;
+        transform: scale(1.01);
+      }
+
+      .powerup-card.dashed {
+        background: transparent;
+        border: 1px dashed rgba(255, 255, 255, 0.16);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        min-height: 280px;
+      }
+      .sparkle-icon {
+        width: 32px;
+        height: 32px;
+        color: #666666;
+        margin-bottom: 12px;
+      }
+      .powerup-note {
+        font-size: 13px;
+        color: #666666;
+        margin-top: 24px;
+        line-height: 1.5;
+      }
+
+      /* =========================================================
+         TAB 4: REMINDERS VIEW
+         ========================================================= */
+      .reminders-header-actions {
+        display: flex;
+        gap: 8px;
+      }
+      .reminders-list {
+        display: flex;
+        flex-direction: column;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .reminder-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      }
+      .reminder-row-left {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+      .reminder-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        background: #141414;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+      }
+      .reminder-icon svg {
+        width: 18px;
+        height: 18px;
+      }
+      .reminder-title {
+        font-size: 15px;
+        font-weight: 600;
+        color: #ffffff;
+      }
+      .reminder-desc {
+        font-size: 13px;
+        color: #777777;
+        margin-top: 2px;
+      }
+      .reminder-row-right {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+
+      /* iOS Style Green Toggle Switch */
+      .switch {
+        position: relative;
+        display: inline-block;
+        width: 48px;
+        height: 28px;
+      }
+      .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+      .slider {
+        position: absolute;
+        cursor: pointer;
+        inset: 0;
+        background-color: #2b2b2b;
+        transition: 0.25s;
+        border-radius: 9999px;
+      }
+      .slider:before {
+        position: absolute;
+        content: "";
+        height: 22px;
+        width: 22px;
+        left: 3px;
+        bottom: 3px;
+        background-color: #ffffff;
+        transition: 0.25s;
+        border-radius: 50%;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      }
+      input:checked + .slider {
+        background-color: #34c759;
+      }
+      input:checked + .slider:before {
+        transform: translateX(20px);
+      }
+      input:disabled + .slider {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+      .chevron-icon {
+        color: #555555;
+        width: 14px;
+        height: 14px;
+      }
+
+      /* =========================================================
+         TAB 5: FOCUS VIEW
+         ========================================================= */
+      .focus-box {
+        background: #0f0f0f;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 20px;
+        padding: 40px;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .focus-timer {
+        font-size: 64px;
+        font-weight: 700;
+        letter-spacing: -2px;
+        color: #ffffff;
+        font-variant-numeric: tabular-nums;
+        margin: 20px 0;
+      }
+      .btn-focus {
+        background: #ffffff;
+        color: #000000;
+        border: none;
+        border-radius: 9999px;
+        padding: 12px 36px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s ease;
+      }
+      .btn-focus:hover {
+        background: #e8e8e8;
+        transform: scale(1.02);
+      }
+
+      /* =========================================================
+         TAB 6: SETTINGS VIEW
+         ========================================================= */
+      .setting-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      }
+      .setting-label {
+        font-size: 15px;
+        font-weight: 600;
+        color: #ffffff;
+      }
+      .setting-desc {
+        font-size: 13px;
+        color: #777777;
+        margin-top: 2px;
+      }
+      .setting-select {
+        background: #181818;
+        color: #ffffff;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        padding: 8px 14px;
+        border-radius: 8px;
+        font-size: 14px;
+        outline: none;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Top Window Titlebar (Draggable with Minimize / Close) -->
+    <div class="titlebar">
+      <div class="window-controls">
+        <button type="button" class="win-btn" id="btnChevronUp" title="Minimize / Hide">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="18 15 12 9 6 15"></polyline>
+          </svg>
+        </button>
+        <button type="button" class="win-btn" id="btnMinimize" title="Minimize">
+          <svg width="10" height="2" viewBox="0 0 10 2" fill="currentColor"><rect width="10" height="2" rx="1" /></svg>
+        </button>
+        <button type="button" class="win-btn close" id="btnClose" title="Close to tray">
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor">
+            <path d="M1 1L9 9M9 1L1 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="app-layout">
+      <!-- Left Sidebar -->
+      <aside class="sidebar">
+        <div>
+          <div class="brand">
+            <span class="brand-heart">♥</span>
+            <span>ammi</span>
+          </div>
+
+          <ul class="nav-list">
+            <li class="nav-item active" data-tab="today">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="4"></circle>
+                <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path>
+              </svg>
+              <span>Today</span>
+            </li>
+            <li class="nav-item" data-tab="personalize">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path>
+              </svg>
+              <span>Personalize</span>
+            </li>
+            <li class="nav-item" data-tab="powerups">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+              </svg>
+              <span>Power-ups</span>
+            </li>
+            <li class="nav-item" data-tab="reminders">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path>
+                <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path>
+              </svg>
+              <span>Reminders</span>
+            </li>
+            <li class="nav-item" data-tab="focus">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+              <span>Focus</span>
+            </li>
+            <li class="nav-item" data-tab="moments">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+              </svg>
+              <span>Moments</span>
+            </li>
+            <li class="nav-item" data-tab="playground">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path>
+              </svg>
+              <span>Playground</span>
+            </li>
+            <li class="nav-item" data-tab="settings">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="4" x2="20" y1="21" y2="21"></line>
+                <line x1="4" x2="20" y1="14" y2="14"></line>
+                <line x1="4" x2="20" y1="7" y2="7"></line>
+                <circle cx="8" cy="21" r="2"></circle>
+                <circle cx="16" cy="14" r="2"></circle>
+                <circle cx="10" cy="7" r="2"></circle>
+              </svg>
+              <span>Settings</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="sidebar-bottom">
+          <button type="button" class="btn-buy-pro" id="btnBuyPro">Buy Pro</button>
+          <div class="sidebar-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="16 12 12 8 8 12"></polyline>
+              <line x1="12" y1="16" x2="12" y2="8"></line>
+            </svg>
+            <span>Update available</span>
+          </div>
+          <div class="sidebar-link" id="btnPauseReminders">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+            </svg>
+            <span id="pauseLabel">Pause reminders</span>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main Scrollable Content -->
+      <main class="main-content">
+        <!-- =========================================================
+             VIEW 1: TODAY
+             ========================================================= -->
+        <div class="tab-view active" id="view-today">
+          <div class="view-header">
+            <h1 class="view-title">Today</h1>
+            <p class="view-subtitle" id="todayDateStr">Thursday 17 September</p>
+          </div>
+
+          <div class="today-hero">
+            <div class="today-avatar-wrap" id="todayAvatarHero" title="Click to hear Ammi check in">
+              <img src="ammi-peeker.jpg" alt="Ammi peeking" />
+            </div>
+            <div class="today-phrase" id="todayPhraseText">Have you eaten?</div>
+            <div class="today-meta" id="todayMetaText">English · Playful</div>
+          </div>
+
+          <span class="today-section-label">Next scheduled reminder</span>
+          <div class="today-card">
+            <div class="today-card-left">
+              <div class="card-icon-box">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+              </div>
+              <div>
+                <div class="card-title">Dinner check-in</div>
+                <div class="card-sub">20:00 · Every day</div>
+              </div>
+            </div>
+            <button type="button" class="btn-card-action" onclick="switchTab('reminders')">Edit</button>
+          </div>
+
+          <div class="today-card" style="cursor: pointer" onclick="switchTab('focus')">
+            <div class="today-card-left">
+              <div class="card-icon-box">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+              </div>
+              <div>
+                <div class="card-title">Time for a little focus?</div>
+                <div class="card-sub">She’ll check in when you’re done.</div>
+              </div>
+            </div>
+            <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </div>
+        </div>
+
+        <!-- =========================================================
+             VIEW 2: PERSONALIZE
+             ========================================================= -->
+        <div class="tab-view" id="view-personalize">
+          <div class="section-block">
+            <label class="section-label">Tone</label>
+            <div class="tone-segmented">
+              <button type="button" class="tone-pill" data-tone="gentle">Gentle</button>
+              <button type="button" class="tone-pill active" data-tone="playful">Playful</button>
+              <button type="button" class="tone-pill" data-tone="dramatic">Extra dramatic</button>
+            </div>
+          </div>
+
+          <div class="section-block">
+            <label class="section-label">Appearance</label>
+            <div class="appearance-grid" id="appearanceGrid">
+              <!-- Classic (Selected) -->
+              <div class="appearance-card selected" data-style="classic">
+                <div class="check-badge">✓</div>
+                <div class="avatar-thumb">
+                  <img src="avatars/classic.png" alt="Classic" />
+                </div>
+                <span class="avatar-name">Classic</span>
+              </div>
+
+              <!-- Unlockable Appearances -->
+              <div class="appearance-card" data-style="soft_waves">
+                <div class="check-badge">✓</div>
+                <div class="avatar-thumb">
+                  <img src="avatars/soft_waves.png" alt="Soft waves" />
+                </div>
+                <span class="avatar-name">Soft waves <span class="lock-icon">🔒</span></span>
+              </div>
+
+              <div class="appearance-card" data-style="silver_sweep">
+                <div class="check-badge">✓</div>
+                <div class="avatar-thumb">
+                  <img src="avatars/silver_sweep.png" alt="Silver sweep" />
+                </div>
+                <span class="avatar-name">Silver sweep <span class="lock-icon">🔒</span></span>
+              </div>
+
+              <div class="appearance-card" data-style="gold_earrings">
+                <div class="check-badge">✓</div>
+                <div class="avatar-thumb">
+                  <img src="avatars/gold_earrings.png" alt="Gold earrings" />
+                </div>
+                <span class="avatar-name">Gold earrings <span class="lock-icon">🔒</span></span>
+              </div>
+
+              <div class="appearance-card" data-style="round_glasses">
+                <div class="check-badge">✓</div>
+                <div class="avatar-thumb">
+                  <img src="avatars/round_glasses.png" alt="Round glasses" />
+                </div>
+                <span class="avatar-name">Round glasses <span class="lock-icon">🔒</span></span>
+              </div>
+
+              <div class="appearance-card" data-style="silver_bun">
+                <div class="check-badge">✓</div>
+                <div class="avatar-thumb">
+                  <img src="avatars/silver_bun.png" alt="Silver bun" />
+                </div>
+                <span class="avatar-name">Silver bun <span class="lock-icon">🔒</span></span>
+              </div>
+
+              <div class="appearance-card" data-style="swept_back">
+                <div class="check-badge">✓</div>
+                <div class="avatar-thumb">
+                  <img src="avatars/swept_back.png" alt="Swept back" />
+                </div>
+                <span class="avatar-name">Swept back <span class="lock-icon">🔒</span></span>
+              </div>
+
+              <div class="appearance-card" data-style="loose_waves">
+                <div class="check-badge">✓</div>
+                <div class="avatar-thumb">
+                  <img src="avatars/loose_waves.png" alt="Loose waves" />
+                </div>
+                <span class="avatar-name">Loose waves <span class="lock-icon">🔒</span></span>
+              </div>
+
+              <div class="appearance-card" data-style="side_part">
+                <div class="check-badge">✓</div>
+                <div class="avatar-thumb">
+                  <img src="avatars/side_part.png" alt="Side part" />
+                </div>
+                <span class="avatar-name">Side part <span class="lock-icon">🔒</span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- =========================================================
+             VIEW 3: POWER-UPS
+             ========================================================= -->
+        <div class="tab-view" id="view-powerups">
+          <div class="view-header">
+            <h1 class="view-title">Power-ups</h1>
+            <p class="view-subtitle">A little extra drama from Mom.</p>
+          </div>
+
+          <div class="pro-banner">
+            <div>
+              <div style="font-size: 15px; font-weight: 600">
+                Enable Power-ups <span class="pro-badge">PRO</span>
+              </div>
+              <div style="font-size: 13px; color: #777777; margin-top: 3px">
+                Enabling switches Mom to Extra dramatic.
+              </div>
+            </div>
+            <button type="button" class="btn-unlock-pro">Unlock with Pro</button>
+          </div>
+
+          <div class="powerup-grid">
+            <div class="powerup-card">
+              <div class="powerup-img-wrap">
+                <img src="chappal.jpg" alt="Flying Chappal" />
+              </div>
+              <div class="powerup-title">Flying Chappal</div>
+              <div class="powerup-sub">She already told you once.</div>
+              <button type="button" class="btn-preview-powerup" id="btnPreviewChappal">
+                <span>▶ Preview</span>
+              </button>
+            </div>
+
+            <div class="powerup-card dashed">
+              <svg class="sparkle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path>
+              </svg>
+              <div style="font-size: 16px; font-weight: 600; margin-bottom: 4px">More coming soon</div>
+              <div style="font-size: 13px; color: #666666">Mom has more up her sleeve.</div>
+            </div>
+          </div>
+
+          <p class="powerup-note">
+            Alternates with normal scolding moments. Uses Classic Mom with every style. Always silent.
+          </p>
+        </div>
+
+        <!-- =========================================================
+             VIEW 4: REMINDERS
+             ========================================================= -->
+        <div class="tab-view" id="view-reminders">
+          <div class="view-header" style="display: flex; justify-content: space-between; align-items: flex-start">
+            <div>
+              <h1 class="view-title">Reminders</h1>
+              <p class="view-subtitle">Choose what she checks in about, and when.</p>
+            </div>
+            <div class="reminders-header-actions">
+              <button type="button" class="win-btn" title="Options">···</button>
+              <button type="button" class="win-btn" title="Add reminder">+</button>
+            </div>
+          </div>
+
+          <p style="font-size: 13px; color: #666666; margin-bottom: 18px">
+            Routine visits are spaced apart. Messages stay until dismissed.
+          </p>
+
+          <div class="reminders-list" id="remindersList">
+            <!-- 1. Low battery -->
+            <div class="reminder-row">
+              <div class="reminder-row-left">
+                <div class="reminder-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="1" y="6" width="18" height="12" rx="2"></rect>
+                    <line x1="23" y1="11" x2="23" y2="13"></line>
+                  </svg>
+                </div>
+                <div>
+                  <div class="reminder-title">Low battery</div>
+                  <div class="reminder-desc">At 15% · one follow-up at 5%</div>
+                </div>
+              </div>
+              <div class="reminder-row-right">
+                <label class="switch">
+                  <input type="checkbox" checked data-key="charger" />
+                  <span class="slider"></span>
+                </label>
+                <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </div>
+            </div>
+
+            <!-- 2. A little 'finally' -->
+            <div class="reminder-row">
+              <div class="reminder-row-left">
+                <div class="reminder-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2v6M12 18v4M4.93 4.93l4.24 4.24M14.83 14.83l4.24 4.24M2 12h6M18 12h4"></path>
+                  </svg>
+                </div>
+                <div>
+                  <div class="reminder-title">A little ‘finally’</div>
+                  <div class="reminder-desc">Only after a recent low-battery nudge</div>
+                </div>
+              </div>
+              <div class="reminder-row-right">
+                <label class="switch">
+                  <input type="checkbox" checked data-key="charger" />
+                  <span class="slider"></span>
+                </label>
+                <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </div>
+            </div>
+
+            <!-- 3. Stretch your legs -->
+            <div class="reminder-row">
+              <div class="reminder-row-left">
+                <div class="reminder-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 16v-2a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v2"></path>
+                    <circle cx="12" cy="4" r="2"></circle>
+                  </svg>
+                </div>
+                <div>
+                  <div class="reminder-title">Stretch your legs</div>
+                  <div class="reminder-desc">After 60 active minutes · daily limit applies</div>
+                </div>
+              </div>
+              <div class="reminder-row-right">
+                <label class="switch">
+                  <input type="checkbox" checked data-key="break" />
+                  <span class="slider"></span>
+                </label>
+                <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </div>
+            </div>
+
+            <!-- 4. A sip of water -->
+            <div class="reminder-row">
+              <div class="reminder-row-left">
+                <div class="reminder-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>
+                  </svg>
+                </div>
+                <div>
+                  <div class="reminder-title">A sip of water</div>
+                  <div class="reminder-desc">After 60 active minutes · daily limit applies</div>
+                </div>
+              </div>
+              <div class="reminder-row-right">
+                <label class="switch">
+                  <input type="checkbox" checked data-key="water" />
+                  <span class="slider"></span>
+                </label>
+                <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </div>
+            </div>
+
+            <!-- 5. Lunch check-in -->
+            <div class="reminder-row">
+              <div class="reminder-row-left">
+                <div class="reminder-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 2v20M6 2v20M6 10h12"></path>
+                  </svg>
+                </div>
+                <div>
+                  <div class="reminder-title">Lunch check-in</div>
+                  <div class="reminder-desc">13:00 · Every day</div>
+                </div>
+              </div>
+              <div class="reminder-row-right">
+                <label class="switch">
+                  <input type="checkbox" checked data-key="food" />
+                  <span class="slider"></span>
+                </label>
+                <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </div>
+            </div>
+
+            <!-- 6. Dinner check-in -->
+            <div class="reminder-row">
+              <div class="reminder-row-left">
+                <div class="reminder-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 2v20M6 2v20M6 10h12"></path>
+                  </svg>
+                </div>
+                <div>
+                  <div class="reminder-title">Dinner check-in</div>
+                  <div class="reminder-desc">20:00 · Every day</div>
+                </div>
+              </div>
+              <div class="reminder-row-right">
+                <label class="switch">
+                  <input type="checkbox" checked data-key="food" />
+                  <span class="slider"></span>
+                </label>
+                <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </div>
+            </div>
+
+            <!-- 7. Call me on your break -->
+            <div class="reminder-row">
+              <div class="reminder-row-left">
+                <div class="reminder-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                  </svg>
+                </div>
+                <div>
+                  <div class="reminder-title">Call me on your break</div>
+                  <div class="reminder-desc">After 180 active minutes · daily limit applies</div>
+                </div>
+              </div>
+              <div class="reminder-row-right">
+                <label class="switch">
+                  <input type="checkbox" checked data-key="call" />
+                  <span class="slider"></span>
+                </label>
+                <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </div>
+            </div>
+
+            <!-- 8. Enough for today -->
+            <div class="reminder-row">
+              <div class="reminder-row-left">
+                <div class="reminder-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+                  </svg>
+                </div>
+                <div>
+                  <div class="reminder-title">Enough for today</div>
+                  <div class="reminder-desc">23:00 · Every day</div>
+                </div>
+              </div>
+              <div class="reminder-row-right">
+                <label class="switch">
+                  <input type="checkbox" checked data-key="late" />
+                  <span class="slider"></span>
+                </label>
+                <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </div>
+            </div>
+
+            <!-- 9. A well-earned break -->
+            <div class="reminder-row">
+              <div class="reminder-row-left">
+                <div class="reminder-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                  </svg>
+                </div>
+                <div>
+                  <div class="reminder-title">A well-earned break</div>
+                  <div class="reminder-desc">When your focus session finishes</div>
+                </div>
+              </div>
+              <div class="reminder-row-right">
+                <label class="switch">
+                  <input type="checkbox" checked data-key="break" />
+                  <span class="slider"></span>
+                </label>
+                <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </div>
+            </div>
+
+            <!-- 10. A morning hello -->
+            <div class="reminder-row">
+              <div class="reminder-row-left">
+                <div class="reminder-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="4"></circle>
+                    <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path>
+                  </svg>
+                </div>
+                <div>
+                  <div class="reminder-title">A morning hello</div>
+                  <div class="reminder-desc">09:00 · Every day</div>
+                </div>
+              </div>
+              <div class="reminder-row-right">
+                <label class="switch">
+                  <input type="checkbox" checked data-key="morning" />
+                  <span class="slider"></span>
+                </label>
+                <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </div>
+            </div>
+
+            <!-- 11. Your next event (Pro) -->
+            <div class="reminder-row" style="opacity: 0.75">
+              <div class="reminder-row-left">
+                <div class="reminder-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                  </svg>
+                </div>
+                <div>
+                  <div class="reminder-title">Your next event</div>
+                  <div class="reminder-desc">Included in Ammi Pro</div>
+                </div>
+              </div>
+              <div class="reminder-row-right">
+                <span class="lock-icon" style="font-size: 13px">🔒</span>
+                <label class="switch">
+                  <input type="checkbox" disabled />
+                  <span class="slider"></span>
+                </label>
+                <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </div>
+            </div>
+
+            <!-- 12. A little less screen time (Pro) -->
+            <div class="reminder-row" style="opacity: 0.75">
+              <div class="reminder-row-left">
+                <div class="reminder-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                    <line x1="8" y1="21" x2="16" y2="21"></line>
+                    <line x1="12" y1="17" x2="12" y2="21"></line>
+                  </svg>
+                </div>
+                <div>
+                  <div class="reminder-title">A little less screen time</div>
+                  <div class="reminder-desc">Included in Ammi Pro</div>
+                </div>
+              </div>
+              <div class="reminder-row-right">
+                <span class="lock-icon" style="font-size: 13px">🔒</span>
+                <label class="switch">
+                  <input type="checkbox" disabled />
+                  <span class="slider"></span>
+                </label>
+                <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </div>
+            </div>
+
+            <!-- 13. Your birthday (Pro) -->
+            <div class="reminder-row" style="opacity: 0.75">
+              <div class="reminder-row-left">
+                <div class="reminder-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="8" width="18" height="14" rx="2"></rect>
+                    <path d="M12 2v6M8 4l8 0"></path>
+                  </svg>
+                </div>
+                <div>
+                  <div class="reminder-title">Your birthday</div>
+                  <div class="reminder-desc">Included in Ammi Pro</div>
+                </div>
+              </div>
+              <div class="reminder-row-right">
+                <span class="lock-icon" style="font-size: 13px">🔒</span>
+                <label class="switch">
+                  <input type="checkbox" disabled />
+                  <span class="slider"></span>
+                </label>
+                <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </div>
+            </div>
+
+            <!-- 14. A day to celebrate (Pro) -->
+            <div class="reminder-row" style="opacity: 0.75">
+              <div class="reminder-row-left">
+                <div class="reminder-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path>
+                  </svg>
+                </div>
+                <div>
+                  <div class="reminder-title">A day to celebrate</div>
+                  <div class="reminder-desc">Included in Ammi Pro</div>
+                </div>
+              </div>
+              <div class="reminder-row-right">
+                <span class="lock-icon" style="font-size: 13px">🔒</span>
+                <label class="switch">
+                  <input type="checkbox" disabled />
+                  <span class="slider"></span>
+                </label>
+                <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- =========================================================
+             VIEW 5: FOCUS
+             ========================================================= -->
+        <div class="tab-view" id="view-focus">
+          <div class="view-header">
+            <h1 class="view-title">Focus</h1>
+            <p class="view-subtitle">Mom will keep quiet until you’re done.</p>
+          </div>
+
+          <div class="focus-box">
+            <div style="font-size: 14px; color: #888888; font-weight: 500">25 MINUTE DEEP WORK</div>
+            <div class="focus-timer" id="focusTimerDisplay">25:00</div>
+            <button type="button" class="btn-focus" id="btnToggleFocus">Start Focus Session</button>
+          </div>
+        </div>
+
+        <!-- =========================================================
+             VIEW 6: MOMENTS
+             ========================================================= -->
+        <div class="tab-view" id="view-moments">
+          <div class="view-header">
+            <h1 class="view-title">Moments</h1>
+            <p class="view-subtitle">Recent loving check-ins from Ammi.</p>
+          </div>
+
+          <div class="today-card">
+            <div class="today-card-left">
+              <div class="card-icon-box">💧</div>
+              <div>
+                <div class="card-title">Pani pee lo.</div>
+                <div class="card-sub">Drink some water · 18:30</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="today-card">
+            <div class="today-card-left">
+              <div class="card-icon-box">🚶</div>
+              <div>
+                <div class="card-title">Bohat der baith gaye. Thora chal lo.</div>
+                <div class="card-sub">Walk a little · 17:15</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="today-card">
+            <div class="today-card-left">
+              <div class="card-icon-box">☕</div>
+              <div>
+                <div class="card-title">Chai bana doon?</div>
+                <div class="card-sub">Shall I make you tea? · 15:45</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- =========================================================
+             VIEW 7: PLAYGROUND
+             ========================================================= -->
+        <div class="tab-view" id="view-playground">
+          <div class="view-header">
+            <h1 class="view-title">Playground</h1>
+            <p class="view-subtitle">Click any phrase to hear Ammi check in right now.</p>
+          </div>
+
+          <div class="appearance-grid" style="grid-template-columns: repeat(2, 1fr)">
+            <button type="button" class="btn-preview-powerup" onclick="testSay('water')">💧 Pani pee lo</button>
+            <button type="button" class="btn-preview-powerup" onclick="testSay('food')">🍲 Khana kha liya?</button>
+            <button type="button" class="btn-preview-powerup" onclick="testSay('break')">🚶 Thora chal lo</button>
+            <button type="button" class="btn-preview-powerup" onclick="testSay('eyes')">👀 Ankhon ko aaram do</button>
+            <button type="button" class="btn-preview-powerup" onclick="testSay('tea')">☕ Chai bana doon?</button>
+            <button type="button" class="btn-preview-powerup" onclick="testSay('posture')">🪑 Seedhe baitho</button>
+            <button type="button" class="btn-preview-powerup" onclick="testSay('late')">🌙 Ab so jao</button>
+            <button type="button" class="btn-preview-powerup" onclick="testSay('praise')">❤️ Shabash mera bacha</button>
+          </div>
+        </div>
+
+        <!-- =========================================================
+             VIEW 8: SETTINGS
+             ========================================================= -->
+        <div class="tab-view" id="view-settings">
+          <div class="view-header">
+            <h1 class="view-title">Settings</h1>
+            <p class="view-subtitle">Control Ammi’s presence and language.</p>
+          </div>
+
+          <div class="setting-item">
+            <div>
+              <div class="setting-label">Language</div>
+              <div class="setting-desc">Language she speaks during reminders</div>
+            </div>
+            <select class="setting-select" id="settingLanguage">
+              <option value="urdu">Urdu</option>
+              <option value="english">English</option>
+              <option value="punjabi">Punjabi</option>
+              <option value="german">German</option>
+            </select>
+          </div>
+
+          <div class="setting-item">
+            <div>
+              <div class="setting-label">Screen Position</div>
+              <div class="setting-desc">Where Ammi peeks from on your screen</div>
+            </div>
+            <select class="setting-select" id="settingPosition">
+              <option value="center">Center</option>
+              <option value="left">Left</option>
+              <option value="right">Right</option>
+            </select>
+          </div>
+
+          <div class="setting-item">
+            <div>
+              <div class="setting-label">English Translation</div>
+              <div class="setting-desc">Show English subtitles below her dialogue</div>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="settingTranslation" checked />
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <div class="setting-item">
+            <div>
+              <div class="setting-label">Launch at Startup</div>
+              <div class="setting-desc">Start Ammi automatically when you turn on your PC</div>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="settingStartup" checked />
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      // Navigation Tab Switching
+      const navItems = document.querySelectorAll(".nav-item");
+      const tabViews = document.querySelectorAll(".tab-view");
+
+      function switchTab(tabId) {
+        navItems.forEach((item) => {
+          item.classList.toggle("active", item.dataset.tab === tabId);
+        });
+        tabViews.forEach((view) => {
+          view.classList.toggle("active", view.id === `view-${tabId}`);
+        });
+      }
+
+      navItems.forEach((item) => {
+        item.addEventListener("click", () => switchTab(item.dataset.tab));
+      });
+
+      // Date String in Today tab
+      const now = new Date();
+      const options = { weekday: "long", day: "numeric", month: "long" };
+      document.getElementById("todayDateStr").textContent = now.toLocaleDateString("en-US", options);
+
+      // Window minimize / close
+      const hideOrMin = () => {
+        if (window.ammi && window.ammi.closeDashboard) {
+          window.ammi.closeDashboard();
+        } else if (window.ammi && window.ammi.minimizeDashboard) {
+          window.ammi.minimizeDashboard();
+        } else {
+          window.close();
+        }
+      };
+      const btnChev = document.getElementById("btnChevronUp");
+      if (btnChev) btnChev.addEventListener("click", hideOrMin);
+
+      document.getElementById("btnMinimize").addEventListener("click", () => {
+        if (window.ammi && window.ammi.minimizeDashboard) {
+          window.ammi.minimizeDashboard();
+        }
+      });
+      document.getElementById("btnClose").addEventListener("click", hideOrMin);
+
+      // Live config state
+      let activeConfig = {
+        language: "english",
+        energy: "playful",
+        tone: "playful",
+        appearance: "classic",
+        position: "center",
+        translation: true,
+        auto: true,
+        enabled: ["charger", "break", "water", "food", "call", "late", "morning"],
+      };
+
+      // Tone selection
+      const tonePills = document.querySelectorAll(".tone-pill");
+      tonePills.forEach((pill) => {
+        pill.addEventListener("click", () => {
+          tonePills.forEach((p) => p.classList.remove("active"));
+          pill.classList.add("active");
+          const tone = pill.dataset.tone;
+          activeConfig.energy = tone;
+          activeConfig.tone = tone;
+          document.getElementById("todayMetaText").textContent = `${capitalize(activeConfig.language)} · ${capitalize(tone)}`;
+          savePatch({ energy: tone, tone });
+        });
+      });
+
+      // Appearance selection
+      const appearanceCards = document.querySelectorAll(".appearance-card");
+      appearanceCards.forEach((card) => {
+        card.addEventListener("click", () => {
+          appearanceCards.forEach((c) => c.classList.remove("selected"));
+          card.classList.add("selected");
+          const style = card.dataset.style;
+          activeConfig.appearance = style;
+          savePatch({ appearance: style });
+        });
+      });
+
+      // Reminder toggles
+      document.querySelectorAll('#remindersList input[type="checkbox"]').forEach((input) => {
+        input.addEventListener("change", (e) => {
+          const key = input.dataset.key;
+          if (!key) return;
+          if (input.checked) {
+            if (!activeConfig.enabled.includes(key)) activeConfig.enabled.push(key);
+          } else {
+            activeConfig.enabled = activeConfig.enabled.filter((k) => k !== key);
+          }
+          savePatch({ enabled: activeConfig.enabled });
+        });
+      });
+
+      // Settings elements
+      const settingLang = document.getElementById("settingLanguage");
+      const settingPos = document.getElementById("settingPosition");
+      const settingTrans = document.getElementById("settingTranslation");
+
+      settingLang.addEventListener("change", (e) => {
+        activeConfig.language = e.target.value;
+        document.getElementById("todayMetaText").textContent = `${capitalize(activeConfig.language)} · ${capitalize(activeConfig.energy || "playful")}`;
+        savePatch({ language: e.target.value });
+      });
+
+      settingPos.addEventListener("change", (e) => {
+        activeConfig.position = e.target.value;
+        savePatch({ position: e.target.value });
+      });
+
+      settingTrans.addEventListener("change", (e) => {
+        activeConfig.translation = e.target.checked;
+        savePatch({ translation: e.target.checked });
+      });
+
+      // Pause reminders toggle
+      let paused = false;
+      document.getElementById("btnPauseReminders").addEventListener("click", () => {
+        paused = !paused;
+        document.getElementById("pauseLabel").textContent = paused ? "Resume reminders" : "Pause reminders";
+        savePatch({ auto: !paused });
+      });
+
+      // Today Avatar click -> Say something
+      document.getElementById("todayAvatarHero").addEventListener("click", () => {
+        if (window.ammi && window.ammi.sayNow) window.ammi.sayNow();
+      });
+
+      // Power-up Preview
+      document.getElementById("btnPreviewChappal").addEventListener("click", () => {
+        if (window.ammi && window.ammi.previewPowerup) {
+          window.ammi.previewPowerup("chappal");
+        }
+      });
+
+      function testSay(key) {
+        if (window.ammi && window.ammi.sayNow) {
+          window.ammi.sayNow(key);
+        }
+      }
+
+      // Focus timer session
+      let focusSeconds = 25 * 60;
+      let focusInterval = null;
+      const focusDisplay = document.getElementById("focusTimerDisplay");
+      const btnFocus = document.getElementById("btnToggleFocus");
+
+      btnFocus.addEventListener("click", () => {
+        if (focusInterval) {
+          clearInterval(focusInterval);
+          focusInterval = null;
+          btnFocus.textContent = "Start Focus Session";
+        } else {
+          btnFocus.textContent = "Pause Session";
+          focusInterval = setInterval(() => {
+            if (focusSeconds > 0) {
+              focusSeconds--;
+              const m = String(Math.floor(focusSeconds / 60)).padStart(2, "0");
+              const s = String(focusSeconds % 60).padStart(2, "0");
+              focusDisplay.textContent = `${m}:${s}`;
+            } else {
+              clearInterval(focusInterval);
+              focusInterval = null;
+              btnFocus.textContent = "Session Complete!";
+              if (window.ammi && window.ammi.sayNow) window.ammi.sayNow("break");
+            }
+          }, 1000);
+        }
+      });
+
+      function capitalize(str) {
+        if (!str) return "";
+        return str.charAt(0).toUpperCase() + str.slice(1);
+      }
+
+      function savePatch(patch) {
+        if (window.ammi && window.ammi.updateConfig) {
+          window.ammi.updateConfig(patch);
+        }
+      }
+
+      // Initial config load from Electron
+      if (window.ammi && window.ammi.onConfig) {
+        window.ammi.onConfig((cfg) => {
+          if (!cfg) return;
+          activeConfig = { ...activeConfig, ...cfg };
+          if (cfg.language && settingLang) settingLang.value = cfg.language;
+          if (cfg.position && settingPos) settingPos.value = cfg.position;
+          if (typeof cfg.translation === "boolean" && settingTrans) settingTrans.checked = cfg.translation;
+          if (cfg.energy) {
+            tonePills.forEach((p) => p.classList.toggle("active", p.dataset.tone === cfg.energy));
+            document.getElementById("todayMetaText").textContent = `${capitalize(cfg.language || "english")} · ${capitalize(cfg.energy)}`;
+          }
+        });
+      }
+    </script>
+  </body>
+</html>

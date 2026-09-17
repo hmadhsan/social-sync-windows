@@ -376,7 +376,31 @@
       if (window.ammi) {
         window.ammi.onConfig((incoming) => apply(incoming || {}));
         window.ammi.onCursor(({ x, y }) => look(x, y));
-        window.ammi.onSay && window.ammi.onSay(() => next());
+        window.ammi.onSay &&
+          window.ammi.onSay((key) => {
+            if (key) {
+              const found = REMINDERS.find((r) => r.key === key);
+              if (found) show(found);
+              else next();
+            } else {
+              next();
+            }
+          });
+        window.ammi.onPowerup &&
+          window.ammi.onPowerup((name) => {
+            if (name === "chappal") {
+              const oldSrc = ammiImg ? ammiImg.src : "";
+              if (ammiImg) ammiImg.src = "chappal.jpg";
+              show({
+                urdu: "Bohat der se screen dekh rahe ho! Chappal aayi ke aayi!",
+                en: "You've been on the screen too long! Flying Chappal incoming!",
+                mood: "scold",
+              });
+              setTimeout(() => {
+                if (ammiImg && oldSrc) ammiImg.src = oldSrc;
+              }, 6000);
+            }
+          });
       }
 
       apply(fromQuery);

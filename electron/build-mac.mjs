@@ -74,11 +74,11 @@ plist = plist.replace(/<string>com\.github\.Electron<\/string>/g, "<string>app.a
 plist = plist.replace(/<string>electron<\/string>/g, "<string>ammi<\/string>");
 fs.writeFileSync(plistPath, plist, "utf8");
 
-// Delete default_app.asar from zip
-execSync(`"${SEVEN_ZIP}" d "${rootZip}" "Electron.app/Contents/Resources/default_app.asar"`, { stdio: "inherit" });
+const sleep = (ms) => Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
 
-// Delete unedited Info.plist from zip
-execSync(`"${SEVEN_ZIP}" d "${rootZip}" "Electron.app/Contents/Info.plist"`, { stdio: "inherit" });
+// Delete default_app.asar and unedited Info.plist from zip
+sleep(1200);
+execSync(`"${SEVEN_ZIP}" d "${rootZip}" "Electron.app/Contents/Resources/default_app.asar" "Electron.app/Contents/Info.plist"`, { stdio: "inherit" });
 
 // Setup temp_inject directory structure
 if (fs.existsSync(tempInject)) fs.rmSync(tempInject, { recursive: true, force: true });
@@ -90,13 +90,12 @@ fs.copyFileSync(asarOut, path.join(targetRes, "app.asar"));
 fs.copyFileSync(plistPath, path.join(targetContents, "Info.plist"));
 
 // Add updated app.asar and Info.plist into zip
+sleep(1500);
 execSync(`"${SEVEN_ZIP}" a "${rootZip}" "${tempInject}\\*" -r`, { stdio: "inherit" });
 
-// Rename executable Electron -> Ammi
-execSync(`"${SEVEN_ZIP}" rn "${rootZip}" "Electron.app/Contents/MacOS/Electron" "Electron.app/Contents/MacOS/Ammi"`, { stdio: "inherit" });
-
-// Rename Electron.app -> Ammi.app
-execSync(`"${SEVEN_ZIP}" rn "${rootZip}" "Electron.app" "Ammi.app"`, { stdio: "inherit" });
+// Rename executable and App bundle in one command
+sleep(1500);
+execSync(`"${SEVEN_ZIP}" rn "${rootZip}" "Electron.app/Contents/MacOS/Electron" "Electron.app/Contents/MacOS/Ammi" "Electron.app" "Ammi.app"`, { stdio: "inherit" });
 
 // Add HOW TO OPEN ON MAC.txt
 const readmeMacPath = path.join(workspaceRoot, "HOW TO OPEN ON MAC.txt");

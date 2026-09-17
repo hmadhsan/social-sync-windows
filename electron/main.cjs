@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Tray, Menu, screen, nativeImage, shell, ipcMain, dialog } = require("electron");
+const { app, BrowserWindow, Tray, Menu, screen, nativeImage, shell, ipcMain } = require("electron");
 const path = require("path");
 const fs = require("fs");
 
@@ -26,12 +26,20 @@ const REMINDERS = [
 ];
 
 function iconImage() {
-  const image = nativeImage.createFromPath(path.join(__dirname, "..", "build", "tray.png"));
-  return image.isEmpty() ? nativeImage.createEmpty() : image;
+  try {
+    const iconPath = path.join(__dirname, "..", "build", "tray.png");
+    if (fs.existsSync(iconPath)) {
+      const buf = fs.readFileSync(iconPath);
+      const img = nativeImage.createFromBuffer(buf);
+      if (!img.isEmpty()) return img;
+    }
+  } catch {
+    /* ignore */
+  }
+  return nativeImage.createEmpty();
 }
 
-// Create Desktop + Start Menu shortcuts the first time the app runs,
-// so it can be started by double-clicking an icon.
+// Create Desktop + Start Menu shortcuts the first time the app runs
 function ensureShortcuts() {
   if (process.platform !== "win32") return;
   const stamp = path.join(app.getPath("userData"), "shortcuts.json");
@@ -78,15 +86,17 @@ const defaults = {
   auto: true,
   language: "urdu",
   energy: "playful",
+  tone: "playful",
+  appearance: "classic",
   onboardingComplete: false,
   enabled: REMINDERS.map((r) => r.key),
 };
 
 let config = { ...defaults };
 let win = null;
+let dashboardWin = null;
 let onboardingWin = null;
 let tray = null;
-let cursorTimer = null;
 
 function loadConfig() {
   try {
@@ -107,6 +117,7 @@ function saveConfig() {
 
 function push() {
   if (win && !win.isDestroyed()) win.webContents.send("config", config);
+  if (dashboardWin && !dashboardWin.isDestroyed()) dashboardWin.webContents.send("config", config);
   saveConfig();
   buildTray();
 }
@@ -151,6 +162,41 @@ function createOnboardingWindow() {
   onboardingWin.loadFile(path.join(__dirname, "..", "public", "onboarding.html"));
 }
 
+function createDashboardWindow() {
+  if (dashboardWin && !dashboardWin.isDestroyed()) {
+    dashboardWin.show();
+    dashboardWin.focus();
+    return;
+  }
+  if (process.platform === "darwin" && app.dock) {
+    app.dock.show();
+  }
+  dashboardWin = new BrowserWindow({
+    width: 980,
+    height: 720,
+    minWidth: 820,
+    minHeight: 600,
+    center: true,
+    frame: false,
+    titleBarStyle: "hidden",
+    backgroundColor: "#000000",
+    icon: path.join(__dirname, "..", "build", "tray.png"),
+    webPreferences: {
+      preload: path.join(__dirname, "preload.cjs"),
+      contextIsolation: true,
+      nodeIntegration: false,
+    },
+  });
+
+  dashboardWin.loadFile(path.join(__dirname, "..", "public", "dashboard.html"));
+  dashboardWin.webContents.on("did-finish-load", () => {
+    dashboardWin.webContents.send("config", config);
+  });
+  dashboardWin.on("closed", () => {
+    dashboardWin = null;
+  });
+}
+
 ipcMain.on("onboarding:finish", (_e, data) => {
   if (data) {
     if (data.language) config.language = data.language;
@@ -162,15 +208,44 @@ ipcMain.on("onboarding:finish", (_e, data) => {
   if (onboardingWin && !onboardingWin.isDestroyed()) {
     onboardingWin.close();
   }
-  if (process.platform === "darwin" && app.dock) {
-    app.dock.hide();
-  }
 
+  // Open the full desktop app dashboard
+  createDashboardWindow();
+
+  // Also start the companion overlay in the background
   if (!win || win.isDestroyed()) {
     createWindow();
   }
   buildTray();
   push();
+});
+
+ipcMain.on("config:patch", (_e, patch) => {
+  set(patch);
+});
+
+ipcMain.on("say:now", (_e, key) => {
+  if (win && !win.isDestroyed()) {
+    win.webContents.send("say", key);
+  }
+});
+
+ipcMain.on("powerup:preview", (_e, name) => {
+  if (win && !win.isDestroyed()) {
+    win.webContents.send("powerup", name);
+  }
+});
+
+ipcMain.on("dashboard:minimize", () => {
+  if (dashboardWin && !dashboardWin.isDestroyed()) {
+    dashboardWin.minimize();
+  }
+});
+
+ipcMain.on("dashboard:close", () => {
+  if (dashboardWin && !dashboardWin.isDestroyed()) {
+    dashboardWin.hide();
+  }
 });
 
 function createWindow() {
@@ -201,14 +276,6 @@ function createWindow() {
   win.setAlwaysOnTop(true, "screen-saver");
   win.loadFile(path.join(__dirname, "..", "public", "overlay.html"));
   win.webContents.on("did-finish-load", () => push());
-
-  if (!cursorTimer) {
-    cursorTimer = setInterval(() => {
-      if (!win || win.isDestroyed()) return;
-      const p = screen.getCursorScreenPoint();
-      win.webContents.send("cursor", { x: p.x - bounds.x, y: p.y - bounds.y });
-    }, 60);
-  }
 }
 
 function radio(label, checked, click) {
@@ -220,10 +287,26 @@ function buildTray() {
     const image = iconImage();
     tray = new Tray(image.isEmpty() ? image : image.resize({ width: 16, height: 16 }));
     tray.setToolTip(`${APP_NAME} — someone's looking out for you`);
+    tray.on("click", () => {
+      if (dashboardWin && !dashboardWin.isDestroyed()) {
+        if (dashboardWin.isVisible()) {
+          dashboardWin.hide();
+        } else {
+          dashboardWin.show();
+          dashboardWin.focus();
+        }
+      } else {
+        createDashboardWindow();
+      }
+    });
   }
   tray.setContextMenu(
     Menu.buildFromTemplate([
       { label: `${APP_NAME}`, enabled: false },
+      {
+        label: "Open Dashboard",
+        click: () => createDashboardWindow(),
+      },
       { type: "separator" },
       {
         label: "Say something now",
@@ -248,75 +331,51 @@ function buildTray() {
         ],
       },
       {
-        label: "How often she checks in",
+        label: "Screen position",
         submenu: [
-          ["Every 10 minutes", 10 * 60],
-          ["Every 25 minutes", 25 * 60],
-          ["Every hour", 60 * 60],
-          ["Every 2 hours", 120 * 60],
-        ].map(([label, v]) => radio(label, config.interval === v, () => set({ interval: v }))),
-      },
-      {
-        label: "How long she stays",
-        submenu: [
-          ["A quick word (6s)", 6],
-          ["Normal (9s)", 9],
-          ["A proper chat (16s)", 16],
-        ].map(([label, v]) => radio(label, config.visible === v, () => set({ visible: v }))),
-      },
-      {
-        label: "Where she appears",
-        submenu: [
-          radio("Top left", config.position === "left", () => set({ position: "left" })),
-          radio("Top centre", config.position === "center", () => set({ position: "center" })),
-          radio("Top right", config.position === "right", () => set({ position: "right" })),
+          radio("Center", config.position === "center", () => set({ position: "center" })),
+          radio("Left", config.position === "left", () => set({ position: "left" })),
+          radio("Right", config.position === "right", () => set({ position: "right" })),
         ],
       },
       {
-        label: "Her size",
+        label: "English translation",
+        type: "checkbox",
+        checked: !!config.translation,
+        click: () => set({ translation: !config.translation }),
+      },
+      {
+        label: "Pause reminders",
+        type: "checkbox",
+        checked: !config.auto,
+        click: () => set({ auto: !config.auto }),
+      },
+      {
+        label: "Frequency",
         submenu: [
-          ["Small", 0.8],
-          ["Normal", 1],
-          ["Large", 1.3],
-        ].map(([label, v]) => radio(label, config.scale === v, () => set({ scale: v }))),
+          radio("Every 15 min", config.interval === 15 * 60, () => set({ interval: 15 * 60 })),
+          radio("Every 25 min", config.interval === 25 * 60, () => set({ interval: 25 * 60 })),
+          radio("Every 45 min", config.interval === 45 * 60, () => set({ interval: 45 * 60 })),
+          radio("Every 60 min", config.interval === 60 * 60, () => set({ interval: 60 * 60 })),
+        ],
+      },
+      {
+        label: "Reminders",
+        submenu: REMINDERS.map((r) => radio(r.label, config.enabled.includes(r.key), () => toggleReminder(r.key))),
       },
       { type: "separator" },
-      {
-        label: "What she reminds you about",
-        submenu: REMINDERS.map((r) =>
-          radio(r.label, config.enabled.includes(r.key), () => toggleReminder(r.key)),
-        ),
-      },
-      radio("Show English translation", config.translation, () =>
-        set({ translation: !config.translation }),
-      ),
-      radio("Pause her reminders", !config.auto, () => set({ auto: !config.auto })),
-      { type: "separator" },
-      {
-        label: "Set up again...",
-        click: () => createOnboardingWindow(),
-      },
-      radio(process.platform === "darwin" ? "Start at login" : "Start with Windows", startsWithWindows(), () => {
-        try {
-          app.setLoginItemSettings({ openAtLogin: !startsWithWindows(), path: process.execPath });
-        } catch {
-          /* ignore */
-        }
-        buildTray();
-      }),
       ...(process.platform === "win32"
         ? [
             {
-              label: "Put an icon on my desktop",
-              click: () => {
-                if (process.platform !== "win32") return;
+              label: "Start with Windows",
+              type: "checkbox",
+              checked: startsWithWindows(),
+              click: (item) => {
                 try {
-                  shell.writeShortcutLink(path.join(app.getPath("desktop"), `${APP_NAME}.lnk`), "create", {
-                    target: process.execPath,
-                    icon: process.execPath,
-                    iconIndex: 0,
-                    description: `${APP_NAME} — someone's looking out for you`,
-                    appUserModelId: "app.ammi.desktop",
+                  app.setLoginItemSettings({
+                    openAtLogin: item.checked,
+                    path: process.execPath,
+                    args: ["--hidden"],
                   });
                 } catch {
                   /* ignore */
@@ -345,12 +404,12 @@ app.whenReady().then(() => {
     createOnboardingWindow();
   } else {
     createWindow();
+    createDashboardWindow();
   }
   buildTray();
 });
 
-app.on("window-all-closed", () => {
-  if (cursorTimer) clearInterval(cursorTimer);
-  app.quit();
+app.on("window-all-closed", (e) => {
+  // Prevent quitting so the tray and overlay stay alive in the background
+  e.preventDefault();
 });
-
