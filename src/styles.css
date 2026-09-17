@@ -174,3 +174,142 @@
   opacity: 0.5;
   pointer-events: none;
 }
+
+/* =========================================================
+   Maaa.app Design System & Editorial Tokens
+   ========================================================= */
+:root {
+  --paper: #fafaf8;
+  --ink: #151515;
+  --muted-text: #727270;
+  --line-border: #deded8;
+  --notch-width: 200px;
+  --notch-height: 120px;
+}
+
+.maaa-page {
+  background-color: var(--paper);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.maaa-notch {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: var(--notch-width);
+  height: var(--notch-height);
+  background: #000;
+  border-radius: 0 0 26px 26px;
+  overflow: hidden;
+  z-index: 40;
+  transition: all 0.48s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.maaa-speech {
+  position: absolute;
+  left: calc(50% + 50px);
+  top: 48px;
+  width: max-content;
+  max-width: 310px;
+  min-width: 180px;
+  padding: 16px 26px 16px 20px;
+  border-radius: 22px;
+  background: #ffffff;
+  box-shadow: 0 10px 35px rgba(20, 20, 18, 0.09);
+  border: 1px solid rgba(222, 222, 216, 0.8);
+  z-index: 50;
+  transition: opacity 0.3s ease, transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.maaa-speech::before {
+  content: "";
+  position: absolute;
+  left: -9px;
+  top: 18px;
+  width: 0;
+  height: 0;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-right: 9px solid #ffffff;
+}
+
+@media (max-width: 700px) {
+  :root {
+    --notch-width: 150px;
+    --notch-height: 100px;
+  }
+  .maaa-speech {
+    top: 110px;
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: calc(100% - 40px);
+  }
+  .maaa-speech::before {
+    left: calc(50% - 8px);
+    top: -9px;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 9px solid #ffffff;
+    border-top: 0;
+  }
+}
+
+.maaa-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: #191919;
+  color: #ffffff;
+  border-radius: 9999px;
+  padding: 16px 32px;
+  font-size: 17px;
+  font-weight: 500;
+  letter-spacing: -0.2px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  text-decoration: none;
+}
+
+.maaa-pill-btn:hover {
+  background: #333333;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(25, 25, 25, 0.12);
+}
+
+.maaa-pill-btn:active {
+  transform: translateY(0);
+}
+
+.maaa-switch {
+  width: 50px;
+  height: 30px;
+  border-radius: 9999px;
+  background-color: #191919;
+  position: relative;
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+  border: none;
+  padding: 3px;
+}
+
+.maaa-switch.off {
+  background-color: #c8c8c2;
+}
+
+.maaa-switch-handle {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s cubic-bezier(0.2, 0.9, 0.3, 1);
+  transform: translateX(20px);
+}
+
+.maaa-switch.off .maaa-switch-handle {
+  transform: translateX(0);
+}
