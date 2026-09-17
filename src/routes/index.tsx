@@ -198,7 +198,7 @@ function Index() {
             className="mx-auto size-44 rounded-[2rem] shadow-glow"
           />
           <h1 className="mt-8 text-balance font-display text-5xl font-extrabold sm:text-6xl">
-            A little home in your Mac
+            A little home in your machine
           </h1>
           <p className="mt-4 text-lg text-muted-foreground">
             Someone&rsquo;s looking out for you.
