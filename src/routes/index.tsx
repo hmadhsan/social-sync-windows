@@ -148,8 +148,7 @@ function Index() {
           <div className="flex flex-col items-center gap-3">
             <div className="flex flex-wrap items-center justify-center gap-2.5">
               <a
-                href="/Ammi-Setup.exe"
-                download="Ammi-Setup.exe"
+                href="https://github.com/hmadhsan/social-sync-windows/releases/download/v1.0.1/Ammi-Setup.exe"
                 className="maaa-pill-btn"
               >
                 <svg className="size-4 shrink-0" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -159,8 +158,7 @@ function Index() {
               </a>
 
               <a
-                href="/Ammi-mac.zip"
-                download="Ammi-mac.zip"
+                href="https://github.com/hmadhsan/social-sync-windows/releases/download/v1.0.1/Ammi-mac.zip"
                 className="maaa-pill-btn"
               >
                 <svg className="size-4 shrink-0" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -525,8 +523,7 @@ function Index() {
 
         <div className="mt-8 flex flex-wrap items-center justify-center gap-2.5">
           <a
-            href="/Ammi-Setup.exe"
-            download="Ammi-Setup.exe"
+            href="https://github.com/hmadhsan/social-sync-windows/releases/download/v1.0.1/Ammi-Setup.exe"
             className="maaa-pill-btn"
           >
             <svg className="size-4 shrink-0" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -536,8 +533,7 @@ function Index() {
           </a>
 
           <a
-            href="/Ammi-mac.zip"
-            download="Ammi-mac.zip"
+            href="https://github.com/hmadhsan/social-sync-windows/releases/download/v1.0.1/Ammi-mac.zip"
             className="maaa-pill-btn"
           >
             <svg className="size-4 shrink-0" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
