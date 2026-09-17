@@ -1,21 +1,21 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import appIcon from "@/assets/danglers-icon.png";
-import winBuild from "@/assets/danglers-win64.zip.asset.json";
+import appIcon from "@/assets/ammi-icon.png";
+import winBuild from "@/assets/ammi-win64.zip.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Danglers for Windows — a tiny character on your desktop" },
+      { title: "Ammi for Windows — someone's looking out for you" },
       {
         name: "description",
         content:
-          "Hang a swing from the top of your Windows screen or park a sitter in the corner. Free, tiny, lives in the system tray. Totally optional, btw.",
+          "A Pakistani mum who leans in from the top of your screen to remind you to drink water, eat, sit straight and sleep. Free, tiny, lives in your system tray.",
       },
-      { property: "og:title", content: "Danglers for Windows" },
+      { property: "og:title", content: "Ammi for Windows" },
       {
         property: "og:description",
-        content: "Unnecessary shit on your Windows screen. Totally optional, btw.",
+        content: "Pani pee lo. Khana kha liya? A little mum on your Windows screen.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -25,26 +25,35 @@ export const Route = createFileRoute("/")({
 });
 
 type Config = {
-  mode: "swing" | "sitter";
-  rope: number;
-  amplitude: number;
-  period: number;
-  loops: boolean;
-  twoSeater: boolean;
-  corner: "left" | "right";
-  anchor: number;
+  position: "left" | "center" | "right";
+  interval: number;
+  visible: number;
+  translation: boolean;
+  scale: number;
+  auto: boolean;
+  scenario: number;
 };
 
 const initialConfig: Config = {
-  mode: "swing",
-  rope: 120,
-  amplitude: 34,
-  period: 2.6,
-  loops: false,
-  twoSeater: false,
-  corner: "left",
-  anchor: 0.5,
+  position: "center",
+  interval: 10,
+  visible: 9,
+  translation: true,
+  scale: 1,
+  auto: true,
+  scenario: 0,
 };
+
+const LINES = [
+  ["Pani pee lo", 0],
+  ["Khana kha liya?", 1],
+  ["Thora chal lo", 2],
+  ["Chai bana doon?", 4],
+  ["Seedhi tarhan baitho", 5],
+  ["Ab so jao", 6],
+  ["Dawai le li?", 8],
+  ["Shabash mera bacha", 11],
+] as const;
 
 function Chip({
   active,
@@ -74,26 +83,23 @@ function Demo() {
   const [config, setConfig] = useState<Config>(initialConfig);
   const [ready, setReady] = useState(false);
 
-  // the overlay tells us when it can accept settings
   useEffect(() => {
     const onMessage = (e: MessageEvent) => {
-      if (e.data && e.data.type === "swingers:ready") setReady(true);
+      if (e.data && e.data.type === "ammi:ready") setReady(true);
     };
     window.addEventListener("message", onMessage);
     return () => window.removeEventListener("message", onMessage);
   }, []);
 
-  // (re)send the settings whenever they change, and once the overlay is ready
   useEffect(() => {
     const send = () =>
-      frame.current?.contentWindow?.postMessage({ type: "swingers:config", config }, "*");
+      frame.current?.contentWindow?.postMessage({ type: "ammi:config", config }, "*");
     send();
     const ids = [80, 300, 900].map((d) => window.setTimeout(send, d));
     return () => ids.forEach(window.clearTimeout);
   }, [config, ready]);
 
   const patch = (p: Partial<Config>) => setConfig((c) => ({ ...c, ...p }));
-  const swinging = config.mode === "swing";
 
   return (
     <div className="space-y-5">
@@ -104,70 +110,49 @@ function Demo() {
           <span className="size-3 rounded-full bg-muted-foreground/40" />
           <span className="ml-2 text-xs text-muted-foreground">Your desktop, roughly</span>
         </div>
-        <div className="relative h-[380px] bg-[radial-gradient(120%_100%_at_20%_0%,oklch(0.32_0.09_290),oklch(0.18_0.06_285))]">
+        <div className="relative h-[380px] bg-[radial-gradient(120%_100%_at_20%_0%,oklch(0.92_0.05_80),oklch(0.82_0.06_60))]">
           <iframe
             ref={frame}
-            title="Live swing preview"
-            src="/overlay.html?rope=120"
+            title="Live Ammi preview"
+            src="/overlay.html?interval=10"
             className="absolute inset-0 size-full"
             style={{ border: 0, background: "transparent" }}
             onLoad={() => setReady(true)}
           />
-          <div className="pointer-events-none absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-background/60 px-3 py-1 text-xs text-muted-foreground">
-            move your mouse — they watch
+          <div className="pointer-events-none absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-background/70 px-3 py-1 text-xs text-muted-foreground">
+            move your mouse — she watches
           </div>
         </div>
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
-        <Chip active={swinging} onClick={() => patch({ mode: "swing" })}>
-          Hang a swing
-        </Chip>
-        <Chip active={!swinging} onClick={() => patch({ mode: "sitter" })}>
-          Sit in the corner
-        </Chip>
-        <span className="mx-1 hidden h-6 w-px bg-border sm:block" />
-        <Chip active={config.twoSeater} onClick={() => patch({ twoSeater: !config.twoSeater })}>
-          {swinging ? "Two-seater" : "Bring a friend"}
-        </Chip>
-        {swinging ? (
-          <>
-            <Chip active={config.loops} onClick={() => patch({ loops: !config.loops })}>
-              Full loops
-            </Chip>
-            <Chip
-              active={config.rope === 200}
-              onClick={() => patch({ rope: config.rope === 200 ? 120 : 200 })}
-            >
-              Long rope
-            </Chip>
-            <Chip
-              active={config.amplitude === 72}
-              onClick={() => patch({ amplitude: config.amplitude === 72 ? 34 : 72 })}
-            >
-              Big arc
-            </Chip>
-            <Chip
-              active={config.period === 1.3}
-              onClick={() => patch({ period: config.period === 1.3 ? 2.6 : 1.3 })}
-            >
-              Hyper
-            </Chip>
-            <Chip
-              active={config.anchor !== 0.5}
-              onClick={() => patch({ anchor: config.anchor === 0.5 ? 0.8 : 0.5 })}
-            >
-              Move it over
-            </Chip>
-          </>
-        ) : (
-          <Chip
-            active={config.corner === "right"}
-            onClick={() => patch({ corner: config.corner === "right" ? "left" : "right" })}
-          >
-            Other corner
+        {LINES.map(([label, id]) => (
+          <Chip key={label} active={config.scenario === id} onClick={() => patch({ scenario: id })}>
+            {label}
           </Chip>
-        )}
+        ))}
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-sm text-muted-foreground">Where she appears:</span>
+        {(["left", "center", "right"] as const).map((p) => (
+          <Chip key={p} active={config.position === p} onClick={() => patch({ position: p })}>
+            {p === "center" ? "Centre" : p === "left" ? "Left" : "Right"}
+          </Chip>
+        ))}
+        <span className="mx-1 hidden h-6 w-px bg-border sm:block" />
+        <Chip
+          active={config.translation}
+          onClick={() => patch({ translation: !config.translation })}
+        >
+          English translation
+        </Chip>
+        <Chip active={config.scale === 1.3} onClick={() => patch({ scale: config.scale === 1.3 ? 1 : 1.3 })}>
+          Bigger
+        </Chip>
+        <Chip active={!config.auto} onClick={() => patch({ auto: !config.auto })}>
+          Pause her
+        </Chip>
       </div>
     </div>
   );
@@ -176,13 +161,13 @@ function Demo() {
 function Index() {
   return (
     <div className="relative min-h-screen overflow-hidden">
-      <div className="glow-orb -left-40 top-[-10rem] size-[28rem] bg-accent/40" aria-hidden />
-      <div className="glow-orb right-[-12rem] top-40 size-[30rem] bg-primary/30" aria-hidden />
+      <div className="glow-orb -left-40 top-[-10rem] size-[28rem] bg-accent/30" aria-hidden />
+      <div className="glow-orb right-[-12rem] top-40 size-[30rem] bg-primary/20" aria-hidden />
 
       <header className="relative mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-4 px-6 py-6">
         <a href="/" className="flex items-center gap-2.5 font-display text-lg font-bold">
-          <img src={appIcon} alt="Danglers app icon" width={32} height={32} className="size-8 rounded-lg" />
-          Danglers
+          <img src={appIcon} alt="Ammi app icon" width={32} height={32} className="size-8 rounded-lg" />
+          Ammi
         </a>
         <nav className="flex items-center gap-5 text-sm text-muted-foreground">
           <a href="#demo" className="hover:text-foreground">
@@ -207,31 +192,31 @@ function Index() {
         <section id="download" className="pt-10 text-center">
           <img
             src={appIcon}
-            alt="A small character sitting on a wooden swing"
+            alt="An illustration of a smiling Pakistani mother in a dupatta"
             width={1024}
             height={1024}
             className="mx-auto size-44 rounded-[2rem] shadow-glow"
           />
           <h1 className="mt-8 text-balance font-display text-5xl font-extrabold sm:text-6xl">
-            Unnecessary shit on your Windows screen.
+            Pani pee lo.
           </h1>
-          <p className="mt-4 text-lg text-muted-foreground">Totally optional, btw.</p>
+          <p className="mt-4 text-lg text-muted-foreground">
+            A mum on your Windows screen. She leans in every now and then to check on you.
+          </p>
           <div className="mt-8 flex flex-col items-center gap-3">
             <a
               href={winBuild.url}
-              download="danglers-win64.zip"
+              download="ammi-win64.zip"
               className="rounded-full bg-primary px-7 py-3.5 font-display text-lg font-bold text-primary-foreground transition-transform hover:scale-105"
             >
               Download for Windows
             </a>
-            <span className="text-sm text-muted-foreground">
-              Free · Windows 10 &amp; 11 · 64-bit
-            </span>
+            <span className="text-sm text-muted-foreground">Free · Windows 10 &amp; 11 · 64-bit</span>
           </div>
-          <p className="mx-auto mt-8 max-w-xl rounded-2xl border border-border bg-card/70 p-5 text-sm text-muted-foreground">
-            Unzip it anywhere and double-click <span className="text-foreground">Danglers.exe</span>. It
-            puts a Danglers icon on your desktop the first time it runs, and lives in your system tray
-            next to the clock — that's where all the settings are, plus “Start with Windows”.
+          <p className="mx-auto mt-8 max-w-xl rounded-2xl border border-border bg-card/80 p-5 text-sm text-muted-foreground">
+            Unzip it anywhere and double-click <span className="text-foreground">Ammi.exe</span>. She
+            puts an icon on your desktop the first time she runs, and sits in your system tray next to
+            the clock — that's where everything is set, including “Start with Windows”.
           </p>
 
           <div className="mx-auto mt-4 max-w-xl rounded-2xl border border-accent/40 bg-accent/10 p-5 text-left text-sm">
@@ -239,24 +224,24 @@ function Index() {
               Windows may say “Windows protected your PC”
             </p>
             <p className="mt-2 text-muted-foreground">
-              That blue screen shows up for every brand-new app that hasn't paid for a publisher
+              That blue screen appears for every brand-new app that hasn't paid for a publisher
               certificate yet. It isn't a virus warning — Windows simply hasn't seen this file before.
               Click <span className="text-foreground">More info</span> →{" "}
               <span className="text-foreground">Run anyway</span> and you're in. It stops appearing
               after that.
             </p>
             <p className="mt-2 text-muted-foreground">
-              No installer, no admin rights, no network calls, no accounts, no tracking. Delete the
-              folder and it's completely gone.
+              No installer, no admin rights, no internet, no accounts, no tracking. Delete the folder
+              and she's completely gone.
             </p>
           </div>
         </section>
 
         <section className="mt-20 grid gap-4 sm:grid-cols-3" aria-label="Reactions">
           {[
-            ["“wtf is this crap”", "— someone"],
-            ["“why is he looking at me”", "— someone else"],
-            ["“ok that's actually cool”", "— eventually, everyone"],
+            ["“Chai bana doon?”", "— every twenty minutes"],
+            ["“Seedhi tarhan baitho”", "— and you did"],
+            ["“Shabash mera bacha”", "— worth the download"],
           ].map(([q, who]) => (
             <blockquote key={q} className="rounded-2xl border border-border bg-card p-5">
               <p className="font-display text-lg">{q}</p>
@@ -266,9 +251,9 @@ function Index() {
         </section>
 
         <section id="demo" className="mt-24">
-          <h2 className="text-3xl font-bold">See it move</h2>
+          <h2 className="text-3xl font-bold">Meet her</h2>
           <p className="mt-2 text-muted-foreground">
-            This is the real thing running in your browser. Poke the buttons.
+            This is the real thing running in your browser. Pick a reminder.
           </p>
           <div className="mt-8">
             <Demo />
@@ -280,16 +265,16 @@ function Index() {
           <div className="mt-8 grid gap-4 md:grid-cols-3">
             {[
               [
-                "Hang a swing",
-                "Pick where it hangs along the top of your screen. Rope length, amplitude, speed, full loops if you want them.",
+                "She checks in",
+                "Every 10 minutes, 25 minutes, hour or two hours — your choice. She leans in, says her line, and slides back up.",
               ],
               [
-                "Or park a sitter",
-                "A character sits on the floor of your screen, back to the edge, following your cursor with their eyes. Left corner or right.",
+                "In Urdu, with English",
+                "Pani pee lo. Khana kha liya? Dawai le li? The English translation sits underneath, or you can switch it off.",
               ],
               [
-                "Stays out of the way",
-                "The overlay ignores clicks, skips the taskbar, and floats above your windows. Everything is set from the tray icon.",
+                "Choose her reminders",
+                "Water, food, breaks, eyes, chai, posture, bedtime, charger, medicine, prayers — tick the ones you want from the tray.",
               ],
             ].map(([title, body], i) => (
               <article key={title} className="rounded-2xl border border-border bg-card p-6">
@@ -305,10 +290,22 @@ function Index() {
           <h2 className="text-3xl font-bold">FAQ</h2>
           <div className="mt-8 space-y-4">
             {[
-              ["Does it get in the way of my clicks?", "No. Every click passes straight through to whatever is underneath."],
-              ["Will it eat my battery?", "It draws one small animation, nothing else. No network, no accounts, no telemetry."],
-              ["How do I turn it off?", "Tray icon → Quit. Settings are remembered for next time."],
-              ["Is there a Mac version?", "Yes, that's the original. This one is the Windows build."],
+              [
+                "Does she get in the way of my clicks?",
+                "No. She floats above your windows and every click passes straight through to whatever is underneath.",
+              ],
+              [
+                "Will she eat my battery?",
+                "She draws one small animation now and then. No internet, no accounts, no tracking.",
+              ],
+              [
+                "Can I make her quiet?",
+                "Tray icon → “Pause her reminders”, or Quit. Your settings are remembered for next time.",
+              ],
+              [
+                "Can I ask her to say something now?",
+                "Yes — tray icon → “Say something now”.",
+              ],
             ].map(([q, a]) => (
               <details key={q} className="rounded-2xl border border-border bg-card p-5">
                 <summary className="cursor-pointer font-display text-lg font-bold">{q}</summary>
@@ -320,7 +317,7 @@ function Index() {
       </main>
 
       <footer className="relative border-t border-border py-8 text-center text-sm text-muted-foreground">
-        Danglers · unnecessary since today
+        Ammi · someone's looking out for you
       </footer>
     </div>
   );
