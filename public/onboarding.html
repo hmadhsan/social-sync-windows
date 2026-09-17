@@ -1,0 +1,480 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Ammi Setup</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        user-select: none;
+      }
+      body {
+        background: #000000;
+        color: #ffffff;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        height: 100vh;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: center;
+        padding: 28px 36px 36px;
+      }
+
+      /* Step indicator dashes */
+      .steps-bar {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        justify-content: center;
+        height: 6px;
+      }
+      .dash {
+        width: 32px;
+        height: 3px;
+        border-radius: 2px;
+        background: #333333;
+        transition: background 0.3s ease;
+      }
+      .dash.active {
+        background: #ffffff;
+      }
+
+      /* Content stages */
+      .stage {
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        width: 100%;
+        max-width: 480px;
+        margin: auto;
+      }
+      .stage.active {
+        display: flex;
+        animation: fadeIn 0.35s ease;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Avatar peeking illustration */
+      .ammi-peeker {
+        position: relative;
+        margin-bottom: 24px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .peeker-circle {
+        width: 96px;
+        height: 96px;
+        border-radius: 50%;
+        overflow: hidden;
+        border: 2px solid rgba(255, 255, 255, 0.15);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+      }
+      .peeker-circle img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .peeker-hands {
+        position: absolute;
+        bottom: -6px;
+        width: 76px;
+        display: flex;
+        justify-content: space-between;
+        pointer-events: none;
+      }
+      .hand-paw {
+        width: 22px;
+        height: 12px;
+        border-radius: 8px 8px 3px 3px;
+        background: #e0a97c;
+        border: 1px solid rgba(140, 90, 55, 0.3);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+      }
+
+      h1 {
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 34px;
+        font-weight: 400;
+        letter-spacing: -0.5px;
+        line-height: 1.2;
+        margin-bottom: 12px;
+        color: #ffffff;
+      }
+      p.subtitle {
+        font-size: 15px;
+        color: #888888;
+        line-height: 1.45;
+        margin-bottom: 28px;
+      }
+
+      /* Dialogue preview bubble */
+      .dialogue-preview {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 28px;
+      }
+      .preview-mini-avatar {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        overflow: hidden;
+        flex-shrink: 0;
+      }
+      .preview-mini-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .preview-text {
+        font-family: Georgia, serif;
+        font-size: 20px;
+        color: #ffffff;
+        letter-spacing: -0.3px;
+        text-align: left;
+      }
+
+      /* Language Grid (4 languages requested) */
+      .lang-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        width: 100%;
+        max-width: 420px;
+        margin-bottom: 10px;
+      }
+      .lang-btn {
+        background: #141414;
+        border: 1.5px solid #222222;
+        color: #ffffff;
+        padding: 16px 20px;
+        border-radius: 14px;
+        font-size: 16px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-align: center;
+      }
+      .lang-btn:hover {
+        background: #1e1e1e;
+        border-color: #383838;
+      }
+      .lang-btn.selected {
+        border-color: #ffffff;
+        background: #1b1b1b;
+      }
+
+      /* Mom Energy Card Stack */
+      .energy-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        width: 100%;
+        max-width: 420px;
+        margin-bottom: 10px;
+      }
+      .energy-card {
+        background: #141414;
+        border: 1.5px solid #222222;
+        border-radius: 18px;
+        padding: 16px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-align: left;
+      }
+      .energy-card:hover {
+        background: #1c1c1c;
+        border-color: #333333;
+      }
+      .energy-card.selected {
+        border-color: #ffffff;
+        background: #1a1a1a;
+      }
+      .energy-left {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+      .energy-icon {
+        font-size: 20px;
+        width: 28px;
+        text-align: center;
+      }
+      .energy-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #ffffff;
+        margin-bottom: 3px;
+      }
+      .energy-desc {
+        font-size: 13px;
+        color: #777777;
+      }
+      .energy-radio {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        border: 2px solid #444444;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+      }
+      .energy-card.selected .energy-radio {
+        border-color: #ffffff;
+        background: #ffffff;
+      }
+      .energy-card.selected .energy-radio::after {
+        content: "✓";
+        color: #000000;
+        font-size: 12px;
+        font-weight: 900;
+      }
+
+      /* Primary Pill Action Button */
+      .bottom-nav {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        padding-top: 10px;
+      }
+      .btn-primary {
+        background: #ffffff;
+        color: #000000;
+        border: none;
+        border-radius: 9999px;
+        padding: 14px 44px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.15s ease, background 0.15s ease;
+      }
+      .btn-primary:hover {
+        background: #f0f0f0;
+        transform: scale(1.02);
+      }
+      .btn-primary:active {
+        transform: scale(0.98);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Top Step Indicator -->
+    <div class="steps-bar" id="stepsBar">
+      <div class="dash active" id="dash1"></div>
+      <div class="dash" id="dash2"></div>
+      <div class="dash" id="dash3"></div>
+      <div class="dash" id="dash4"></div>
+    </div>
+
+    <!-- STAGE 1: Welcome -->
+    <div class="stage active" id="stage1">
+      <div class="ammi-peeker">
+        <div class="peeker-circle">
+          <img src="favicon.png" alt="Ammi avatar" />
+        </div>
+        <div class="peeker-hands">
+          <div class="hand-paw"></div>
+          <div class="hand-paw"></div>
+        </div>
+      </div>
+      <h1>A little closer to home.</h1>
+      <p class="subtitle">A little care, right on your PC.</p>
+    </div>
+
+    <!-- STAGE 2: Language Selection (English, Urdu, German, Punjabi) -->
+    <div class="stage" id="stage2">
+      <h1>What feels like home?</h1>
+      <p class="subtitle">Choose the language she’ll speak.</p>
+
+      <div class="dialogue-preview">
+        <div class="preview-mini-avatar">
+          <img src="favicon.png" alt="Ammi avatar" />
+        </div>
+        <div class="preview-text" id="previewDialogue">Have you eaten?</div>
+      </div>
+
+      <div class="lang-grid">
+        <button type="button" class="lang-btn selected" data-lang="english">English</button>
+        <button type="button" class="lang-btn" data-lang="urdu">Urdu</button>
+        <button type="button" class="lang-btn" data-lang="german">German</button>
+        <button type="button" class="lang-btn" data-lang="punjabi">Punjabi</button>
+      </div>
+    </div>
+
+    <!-- STAGE 3: Mom Energy Selection -->
+    <div class="stage" id="stage3">
+      <div class="ammi-peeker">
+        <div class="peeker-circle">
+          <img src="favicon.png" alt="Ammi avatar" />
+        </div>
+        <div class="peeker-hands">
+          <div class="hand-paw"></div>
+          <div class="hand-paw"></div>
+        </div>
+      </div>
+      <h1>How much mom energy?</h1>
+      <p class="subtitle">A little warmth, or the full mom treatment.</p>
+
+      <div class="energy-stack">
+        <div class="energy-card" data-energy="gentle">
+          <div class="energy-left">
+            <div class="energy-icon">♡</div>
+            <div>
+              <div class="energy-title">Gentle</div>
+              <div class="energy-desc">Soft nudges. Lots of warmth.</div>
+            </div>
+          </div>
+          <div class="energy-radio"></div>
+        </div>
+
+        <div class="energy-card selected" data-energy="playful">
+          <div class="energy-left">
+            <div class="energy-icon">☺</div>
+            <div>
+              <div class="energy-title">Playful</div>
+              <div class="energy-desc">A little teasing. A lot of love.</div>
+            </div>
+          </div>
+          <div class="energy-radio"></div>
+        </div>
+
+        <div class="energy-card" data-energy="dramatic">
+          <div class="energy-left">
+            <div class="energy-icon">✦</div>
+            <div>
+              <div class="energy-title">Extra dramatic</div>
+              <div class="energy-desc">Big expressions. Full mom energy.</div>
+            </div>
+          </div>
+          <div class="energy-radio"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STAGE 4: All set! -->
+    <div class="stage" id="stage4">
+      <div class="ammi-peeker">
+        <div class="peeker-circle">
+          <img src="favicon.png" alt="Ammi avatar" />
+        </div>
+        <div class="peeker-hands">
+          <div class="hand-paw"></div>
+          <div class="hand-paw"></div>
+        </div>
+      </div>
+      <h1>All set!</h1>
+      <p class="subtitle">
+        She’ll be looking out for you.<br />
+        She lives quietly in your system tray by the clock.<br />
+        Right-click her icon anytime to adjust check-ins.
+      </p>
+    </div>
+
+    <!-- Bottom Action Button -->
+    <div class="bottom-nav">
+      <button type="button" class="btn-primary" id="btnNext">Get started</button>
+    </div>
+
+    <script>
+      let currentStep = 1;
+      let selectedLang = "english";
+      let selectedEnergy = "playful";
+
+      const DIALOGUES = {
+        english: "Have you eaten?",
+        urdu: "Khana kha liya?",
+        german: "Hast du schon gegessen?",
+        punjabi: "Roti khaa layi?",
+      };
+
+      const dashes = [
+        document.getElementById("dash1"),
+        document.getElementById("dash2"),
+        document.getElementById("dash3"),
+        document.getElementById("dash4"),
+      ];
+
+      const stages = [
+        document.getElementById("stage1"),
+        document.getElementById("stage2"),
+        document.getElementById("stage3"),
+        document.getElementById("stage4"),
+      ];
+
+      const btnNext = document.getElementById("btnNext");
+      const previewDialogue = document.getElementById("previewDialogue");
+
+      function updateUI() {
+        stages.forEach((s, idx) => {
+          if (idx + 1 === currentStep) s.classList.add("active");
+          else s.classList.remove("active");
+        });
+
+        dashes.forEach((d, idx) => {
+          if (idx + 1 <= currentStep) d.classList.add("active");
+          else d.classList.remove("active");
+        });
+
+        if (currentStep === 1) btnNext.textContent = "Get started";
+        else if (currentStep === 4) btnNext.textContent = "Continue";
+        else btnNext.textContent = "Continue";
+      }
+
+      // Language selection handling
+      document.querySelectorAll(".lang-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll(".lang-btn").forEach((b) => b.classList.remove("selected"));
+          btn.classList.add("selected");
+          selectedLang = btn.getAttribute("data-lang");
+          previewDialogue.textContent = DIALOGUES[selectedLang] || "Have you eaten?";
+        });
+      });
+
+      // Energy selection handling
+      document.querySelectorAll(".energy-card").forEach((card) => {
+        card.addEventListener("click", () => {
+          document.querySelectorAll(".energy-card").forEach((c) => c.classList.remove("selected"));
+          card.classList.add("selected");
+          selectedEnergy = card.getAttribute("data-energy");
+        });
+      });
+
+      // Navigation
+      btnNext.addEventListener("click", () => {
+        if (currentStep < 4) {
+          currentStep++;
+          updateUI();
+        } else {
+          // Finish onboarding
+          if (window.ammi && window.ammi.finishOnboarding) {
+            window.ammi.finishOnboarding({
+              language: selectedLang,
+              energy: selectedEnergy,
+            });
+          } else {
+            window.close();
+          }
+        }
+      });
+    </script>
+  </body>
+</html>

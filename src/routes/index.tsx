@@ -140,17 +140,17 @@ function Index() {
 
           <div className="flex flex-col items-center gap-3">
             <a
-              href="/ammi-win64.zip"
-              download="ammi-win64.zip"
+              href="/Ammi-Setup.exe"
+              download="Ammi-Setup.exe"
               className="maaa-pill-btn"
             >
               <svg className="size-5 shrink-0" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                 <path d="M2 3.4 10.8 2v9.4H2V3.4Zm10 8V1.8L22 0v11.4H12ZM2 12.6h8.8V22L2 20.6v-8Zm10 0h10V24l-10-1.8v-9.6Z" />
               </svg>
-              <span>Download for Windows</span>
+              <span>Download for Windows (.exe)</span>
             </a>
             <p className="text-[13px] text-[#767674] tracking-tight">
-              Free · Windows 10 &amp; 11 · 64-bit · Sits in your system tray
+              Single Setup EXE · Windows 10 &amp; 11 · 64-bit · Installs directly
             </p>
           </div>
         </div>
@@ -295,7 +295,7 @@ function Index() {
       </section>
 
       {/* =========================================================
-          SECTION 2: FEELS LIKE YOUR AMMI (Interactive Voice & Dialogue)
+          SECTION 2: FEELS LIKE YOUR AMMI (4 Languages: English, Urdu, German, Punjabi)
           ========================================================= */}
       <section className="bg-[#f0f0eb] px-6 sm:px-16 py-24 sm:py-28 text-center border-t border-[#deded8]">
         <div className="max-w-3xl mx-auto">
@@ -335,7 +335,7 @@ function Index() {
             </p>
           </div>
 
-          {/* Reminder Buttons (Maaa style tabs) */}
+          {/* 4 Focused Languages Selector */}
           <div className="flex flex-wrap justify-center gap-2 mt-8 max-w-2xl mx-auto">
             {REMINDERS.slice(0, 8).map((r) => (
               <button
@@ -354,7 +354,7 @@ function Index() {
           </div>
 
           <p className="text-[14px] text-[#727270] mt-8">
-            14 reminders · Urdu voice with English translations · Frequency &amp; position controls
+            Available in English, Urdu, German &amp; Punjabi · 3 mom energy tones · Gentle, playful or dramatic
           </p>
         </div>
       </section>
@@ -429,10 +429,10 @@ function Index() {
           <div>
             <span className="block text-[13px] text-[#727270] mb-5 font-mono">01</span>
             <h3 className="text-[24px] font-normal tracking-[-0.6px] text-[#151515]">
-              Download &amp; unzip.
+              Download &amp; install.
             </h3>
             <p className="text-[16px] text-[#727270] leading-[1.6] mt-3">
-              No installer, no account, no admin rights required. Double-click <span className="text-[#151515] font-medium">Ammi.exe</span> to launch.
+              Direct <span className="text-[#151515] font-medium">Ammi-Setup.exe</span> installer. No extraction needed, zero configuration.
             </p>
           </div>
 
@@ -505,18 +505,18 @@ function Index() {
 
         <div className="mt-8">
           <a
-            href="/ammi-win64.zip"
-            download="ammi-win64.zip"
+            href="/Ammi-Setup.exe"
+            download="Ammi-Setup.exe"
             className="maaa-pill-btn"
           >
             <svg className="size-5 shrink-0" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
               <path d="M2 3.4 10.8 2v9.4H2V3.4Zm10 8V1.8L22 0v11.4H12ZM2 12.6h8.8V22L2 20.6v-8Zm10 0h10V24l-10-1.8v-9.6Z" />
             </svg>
-            <span>Download for Windows</span>
+            <span>Download for Windows (.exe)</span>
           </a>
         </div>
         <p className="text-[13px] text-[#727270] mt-4">
-          Free · Windows 10 &amp; 11 · 64-bit
+          Direct Setup EXE · Windows 10 &amp; 11 · 64-bit · Free
         </p>
       </section>
 

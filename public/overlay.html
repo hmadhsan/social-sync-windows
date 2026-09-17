@@ -238,68 +238,116 @@
 
     <script>
       const REMINDERS = [
-        { key: "water", urdu: "Pani pee lo.", en: "Drink some water.", mood: "caring" },
+        {
+          key: "water",
+          urdu: "Pani pee lo.",
+          en: "Drink some water.",
+          de: "Trink ein bisschen Wasser.",
+          pa: "Paani pee lawo ji.",
+          mood: "caring",
+        },
         {
           key: "food",
           urdu: "Khana kha liya? Laptop ruk sakta hai.",
           en: "Have you eaten? The laptop can wait.",
+          de: "Hast du gegessen? Der Laptop wartet.",
+          pa: "Roti khaa layi? Laptop kithe bhajja jaanda.",
           mood: "caring",
         },
         {
           key: "break",
           urdu: "Bohat der baith gaye. Thora chal lo.",
           en: "You've been sitting a long time. Walk a little.",
+          de: "Zu lange gesessen. Lauf ein bisschen rum.",
+          pa: "Badi der ho gayi baitheya nu. Thora turr phirr lo.",
           mood: "scold",
         },
-        { key: "eyes", urdu: "Ankhon ko aaram do.", en: "Give your eyes a rest.", mood: "caring" },
-        { key: "tea", urdu: "Chai bana doon?", en: "Shall I make you some tea?", mood: "happy" },
+        {
+          key: "eyes",
+          urdu: "Ankhon ko aaram do.",
+          en: "Give your eyes a rest.",
+          de: "Gönn deinen Augen eine Pause.",
+          pa: "Akhan nu aaram dewo thora.",
+          mood: "caring",
+        },
+        {
+          key: "tea",
+          urdu: "Chai bana doon?",
+          en: "Shall I make you some tea?",
+          de: "Soll ich dir Tee kochen?",
+          pa: "Tuhade layi chah bana dewan?",
+          mood: "happy",
+        },
         {
           key: "posture",
           urdu: "Seedhi tarhan baitho, kamar kharab ho jaye gi.",
           en: "Sit up straight, you'll ruin your back.",
+          de: "Sitz gerade hin, denk an deinen Rücken.",
+          pa: "Sidhay hoke baitho, lakk dukhau ga.",
           mood: "scold",
         },
         {
           key: "late",
           urdu: "Ab tak jaag rahe ho? Kal kaam nahi hai?",
           en: "Still awake? Don't you have work tomorrow?",
+          de: "Noch wach? Musst du morgen nicht raus?",
+          pa: "Aje takk jagde paye ho? Saun da vela ho gaya.",
           mood: "sleepy",
         },
         {
           key: "charger",
           urdu: "Charger laga lo, battery khatam ho rahi hai.",
           en: "Plug the charger in, your battery is low.",
+          de: "Schließ das Ladekabel an, Akku ist fast leer.",
+          pa: "Charger laa lo, battery mukan aali hai.",
           mood: "scold",
         },
-        { key: "medicine", urdu: "Dawai le li?", en: "Did you take your medicine?", mood: "caring" },
+        {
+          key: "medicine",
+          urdu: "Dawai le li?",
+          en: "Did you take your medicine?",
+          de: "Hast du deine Medizin genommen?",
+          pa: "Dawai le layi time naal?",
+          mood: "caring",
+        },
         {
           key: "morning",
           urdu: "Subha bakhair! Aaj apna khayal rakhna.",
           en: "Good morning! Look after yourself today.",
+          de: "Guten Morgen! Pass gut auf dich auf heute.",
+          pa: "Subha bakhair! Apna khayal rakhna aaj.",
           mood: "happy",
         },
         {
           key: "call",
           urdu: "Break mein phone karna, awaz sunni hai.",
           en: "Call me on your break, I want to hear your voice.",
+          de: "Ruf mich in der Pause an, will deine Stimme hören.",
+          pa: "Vehl mile te phone karna, gall karni hai.",
           mood: "caring",
         },
         {
           key: "praise",
           urdu: "Shabash mera bacha. Ab thora aaram karo.",
           en: "Well done, my child. Now rest a bit.",
+          de: "Sehr gut gemacht! Ruh dich jetzt etwas aus.",
+          pa: "Shabash mere bachay! Hun thora aaram karo.",
           mood: "happy",
         },
         {
           key: "phone",
           urdu: "Phone rakh do thori dair.",
           en: "Put the phone down for a while.",
+          de: "Leg das Handy mal zur Seite.",
+          pa: "Phone rakh dyo thori der.",
           mood: "scold",
         },
         {
           key: "dua",
           urdu: "Duaon mein yaad rakhti hoon.",
           en: "You're always in my prayers.",
+          de: "Ich denke immer an dich.",
+          pa: "Duaawan ch yaad rakhde aan.",
           mood: "happy",
         },
       ];
@@ -383,9 +431,23 @@
       }
 
       function paint(reminder) {
-        urdu.textContent = reminder.urdu;
-        english.textContent = reminder.en;
-        english.style.display = config.translation ? "" : "none";
+        let line = reminder.urdu;
+        let translation = reminder.en;
+
+        if (config.language === "english") {
+          line = reminder.en;
+          translation = "";
+        } else if (config.language === "german") {
+          line = reminder.de || reminder.en;
+          translation = reminder.en;
+        } else if (config.language === "punjabi") {
+          line = reminder.pa || reminder.urdu;
+          translation = reminder.en;
+        }
+
+        urdu.textContent = line;
+        english.textContent = translation;
+        english.style.display = config.translation && translation ? "" : "none";
         mood(reminder.mood);
         place();
       }

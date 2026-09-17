@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Tray, Menu, screen, nativeImage, shell } = require("electron");
+const { app, BrowserWindow, Tray, Menu, screen, nativeImage, shell, ipcMain } = require("electron");
 const path = require("path");
 const fs = require("fs");
 
@@ -9,20 +9,20 @@ if (process.platform === "win32") app.setAppUserModelId("app.ammi.desktop");
 const CONFIG_PATH = () => path.join(app.getPath("userData"), "config.json");
 
 const REMINDERS = [
-  { key: "water", label: "Pani pee lo" },
-  { key: "food", label: "Khana kha liya?" },
-  { key: "break", label: "Thora chal lo" },
-  { key: "eyes", label: "Ankhon ko aaram do" },
-  { key: "tea", label: "Chai bana doon?" },
-  { key: "posture", label: "Seedhi tarhan baitho" },
-  { key: "late", label: "Ab so jao" },
-  { key: "charger", label: "Charger laga lo" },
-  { key: "medicine", label: "Dawai le li?" },
-  { key: "morning", label: "Subha bakhair" },
-  { key: "call", label: "Phone karna" },
-  { key: "praise", label: "Shabash mera bacha" },
-  { key: "phone", label: "Phone rakh do" },
-  { key: "dua", label: "Duaon mein yaad" },
+  { key: "water", label: "Pani pee lo / Water" },
+  { key: "food", label: "Khana kha liya? / Food" },
+  { key: "break", label: "Thora chal lo / Break" },
+  { key: "eyes", label: "Ankhon ko aaram do / Eyes" },
+  { key: "tea", label: "Chai bana doon? / Tea" },
+  { key: "posture", label: "Seedhi tarhan baitho / Posture" },
+  { key: "late", label: "Ab so jao / Sleep" },
+  { key: "charger", label: "Charger laga lo / Charger" },
+  { key: "medicine", label: "Dawai le li? / Medicine" },
+  { key: "morning", label: "Subha bakhair / Morning" },
+  { key: "call", label: "Phone karna / Call home" },
+  { key: "praise", label: "Shabash mera bacha / Praise" },
+  { key: "phone", label: "Phone rakh do / Screen break" },
+  { key: "dua", label: "Duaon mein yaad / Prayer" },
 ];
 
 function iconImage() {
@@ -76,11 +76,15 @@ const defaults = {
   translation: true,
   scale: 1,
   auto: true,
+  language: "urdu",
+  energy: "playful",
+  onboardingComplete: false,
   enabled: REMINDERS.map((r) => r.key),
 };
 
 let config = { ...defaults };
 let win = null;
+let onboardingWin = null;
 let tray = null;
 let cursorTimer = null;
 
@@ -118,6 +122,51 @@ function toggleReminder(key) {
   set({ enabled: next.length ? next : config.enabled });
 }
 
+function createOnboardingWindow() {
+  if (onboardingWin && !onboardingWin.isDestroyed()) {
+    onboardingWin.focus();
+    return;
+  }
+  onboardingWin = new BrowserWindow({
+    width: 580,
+    height: 640,
+    center: true,
+    resizable: false,
+    maximizable: false,
+    minimizable: false,
+    fullscreenable: false,
+    backgroundColor: "#000000",
+    autoHideMenuBar: true,
+    icon: path.join(__dirname, "..", "build", "tray.png"),
+    webPreferences: {
+      preload: path.join(__dirname, "preload.cjs"),
+      contextIsolation: true,
+      nodeIntegration: false,
+    },
+  });
+
+  onboardingWin.loadFile(path.join(__dirname, "..", "public", "onboarding.html"));
+}
+
+ipcMain.on("onboarding:finish", (_e, data) => {
+  if (data) {
+    if (data.language) config.language = data.language;
+    if (data.energy) config.energy = data.energy;
+  }
+  config.onboardingComplete = true;
+  saveConfig();
+
+  if (onboardingWin && !onboardingWin.isDestroyed()) {
+    onboardingWin.close();
+  }
+
+  if (!win || win.isDestroyed()) {
+    createWindow();
+  }
+  buildTray();
+  push();
+});
+
 function createWindow() {
   const { bounds } = screen.getPrimaryDisplay();
   win = new BrowserWindow({
@@ -147,11 +196,13 @@ function createWindow() {
   win.loadFile(path.join(__dirname, "..", "public", "overlay.html"));
   win.webContents.on("did-finish-load", () => push());
 
-  cursorTimer = setInterval(() => {
-    if (!win || win.isDestroyed()) return;
-    const p = screen.getCursorScreenPoint();
-    win.webContents.send("cursor", { x: p.x - bounds.x, y: p.y - bounds.y });
-  }, 60);
+  if (!cursorTimer) {
+    cursorTimer = setInterval(() => {
+      if (!win || win.isDestroyed()) return;
+      const p = screen.getCursorScreenPoint();
+      win.webContents.send("cursor", { x: p.x - bounds.x, y: p.y - bounds.y });
+    }, 60);
+  }
 }
 
 function radio(label, checked, click) {
@@ -173,6 +224,23 @@ function buildTray() {
         click: () => win && !win.isDestroyed() && win.webContents.send("say"),
       },
       { type: "separator" },
+      {
+        label: "Language",
+        submenu: [
+          radio("English", config.language === "english", () => set({ language: "english" })),
+          radio("Urdu", config.language === "urdu", () => set({ language: "urdu" })),
+          radio("German", config.language === "german", () => set({ language: "german" })),
+          radio("Punjabi", config.language === "punjabi", () => set({ language: "punjabi" })),
+        ],
+      },
+      {
+        label: "Mom energy",
+        submenu: [
+          radio("Gentle (Soft nudges)", config.energy === "gentle", () => set({ energy: "gentle" })),
+          radio("Playful (Loving & light)", config.energy === "playful", () => set({ energy: "playful" })),
+          radio("Extra dramatic (Full mom energy)", config.energy === "dramatic", () => set({ energy: "dramatic" })),
+        ],
+      },
       {
         label: "How often she checks in",
         submenu: [
@@ -218,6 +286,10 @@ function buildTray() {
       ),
       radio("Pause her reminders", !config.auto, () => set({ auto: !config.auto })),
       { type: "separator" },
+      {
+        label: "Set up again...",
+        click: () => createOnboardingWindow(),
+      },
       radio("Start with Windows", startsWithWindows(), () => {
         try {
           app.setLoginItemSettings({ openAtLogin: !startsWithWindows(), path: process.execPath });
@@ -252,7 +324,11 @@ function buildTray() {
 app.whenReady().then(() => {
   loadConfig();
   ensureShortcuts();
-  createWindow();
+  if (!config.onboardingComplete) {
+    createOnboardingWindow();
+  } else {
+    createWindow();
+  }
   buildTray();
 });
 
@@ -260,3 +336,4 @@ app.on("window-all-closed", () => {
   if (cursorTimer) clearInterval(cursorTimer);
   app.quit();
 });
+

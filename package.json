@@ -1,5 +1,9 @@
 {
-  "name": "tanstack_start_ts",
+  "name": "ammi",
+  "productName": "Ammi",
+  "version": "1.0.1",
+  "description": "Ammi — someone's looking out for you",
+  "author": "Ammi",
   "private": true,
   "sideEffects": false,
   "type": "module",
