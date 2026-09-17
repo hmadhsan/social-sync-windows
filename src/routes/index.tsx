@@ -46,43 +46,7 @@ function Index() {
   const [isDismissed, setIsDismissed] = useState(false);
   const [previewReminder, setPreviewReminder] = useState(1);
   const [quietHours, setQuietHours] = useState(true);
-  const [customPhoto, setCustomPhoto] = useState<string | null>(null);
-
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem("ammi_custom_photo");
-      if (saved) setCustomPhoto(saved);
-    } catch {
-      /* ignore */
-    }
-  }, []);
-
-  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = reader.result as string;
-      setCustomPhoto(result);
-      try {
-        localStorage.setItem("ammi_custom_photo", result);
-      } catch {
-        /* storage limit fallback */
-      }
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const handleResetPhoto = () => {
-    setCustomPhoto(null);
-    try {
-      localStorage.removeItem("ammi_custom_photo");
-    } catch {
-      /* ignore */
-    }
-  };
-
-  const avatarSrc = customPhoto || appIcon;
+  // Auto-advance demo reminder every 4.5 seconds if not paused and not dismissed
 
   // Auto-advance demo reminder every 4.5 seconds if not paused and not dismissed
   useEffect(() => {
@@ -118,29 +82,6 @@ function Index() {
             ammi
           </a>
           <div className="flex items-center gap-3">
-            <input
-              type="file"
-              id="mom-photo-input"
-              accept="image/*"
-              className="hidden"
-              onChange={handlePhotoUpload}
-            />
-            <label
-              htmlFor="mom-photo-input"
-              className="inline-flex items-center gap-2 rounded-full border border-[#deded8] bg-white/80 backdrop-blur px-4 py-2 text-sm font-medium text-[#151515] transition-all hover:bg-white hover:shadow-sm cursor-pointer"
-            >
-              <span>{customPhoto ? "📸 Change Mom's Photo" : "📷 Upload Mom's Photo"}</span>
-            </label>
-            {customPhoto && (
-              <button
-                type="button"
-                onClick={handleResetPhoto}
-                className="text-xs text-[#727270] hover:text-[#151515] underline px-2 py-1"
-                title="Revert to default avatar"
-              >
-                Reset photo
-              </button>
-            )}
             <button
               type="button"
               onClick={handleSaySomething}
@@ -153,15 +94,19 @@ function Index() {
 
         {/* The Live Interactive Notch Demo */}
         <div className="absolute inset-x-0 top-0 z-20 h-[190px] pointer-events-none flex justify-center">
-          {/* Black Notch */}
-          <div className="maaa-notch group pointer-events-auto cursor-pointer shadow-md" onClick={handleSaySomething} title="Click to hear Ammi speak">
-            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 size-[92px] sm:size-[104px] overflow-hidden rounded-full transition-transform duration-300 group-hover:scale-105">
+          {/* Avatar Demo */}
+          <div
+            className="maaa-notch group pointer-events-auto cursor-pointer"
+            onClick={handleSaySomething}
+            title="Click to hear Ammi speak"
+          >
+            <div className="w-[124px] sm:w-[140px] h-[126px] sm:h-[142px] overflow-hidden flex items-start justify-center transition-transform duration-300 group-hover:scale-105 filter drop-shadow-[0_14px_28px_rgba(0,0,0,0.18)]">
               <img
-                src={avatarSrc}
+                src={appIcon}
                 alt="Ammi avatar portrait"
-                width={104}
-                height={104}
-                className="size-full object-cover object-top"
+                width={140}
+                height={142}
+                className="w-full h-auto object-contain object-top"
               />
             </div>
           </div>
@@ -201,18 +146,31 @@ function Index() {
           </p>
 
           <div className="flex flex-col items-center gap-3">
-            <a
-              href="/Ammi-Setup.exe"
-              download="Ammi-Setup.exe"
-              className="maaa-pill-btn"
-            >
-              <svg className="size-5 shrink-0" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                <path d="M2 3.4 10.8 2v9.4H2V3.4Zm10 8V1.8L22 0v11.4H12ZM2 12.6h8.8V22L2 20.6v-8Zm10 0h10V24l-10-1.8v-9.6Z" />
-              </svg>
-              <span>Download for Windows (.exe)</span>
-            </a>
-            <p className="text-[13px] text-[#767674] tracking-tight">
-              Single Setup EXE · Windows 10 &amp; 11 · 64-bit · Installs directly
+            <div className="flex flex-wrap items-center justify-center gap-2.5">
+              <a
+                href="/Ammi-Setup.exe"
+                download="Ammi-Setup.exe"
+                className="maaa-pill-btn"
+              >
+                <svg className="size-4 shrink-0" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M2 3.4 10.8 2v9.4H2V3.4Zm10 8V1.8L22 0v11.4H12ZM2 12.6h8.8V22L2 20.6v-8Zm10 0h10V24l-10-1.8v-9.6Z" />
+                </svg>
+                <span>Download for Windows</span>
+              </a>
+
+              <a
+                href="/Ammi-mac.zip"
+                download="Ammi-mac.zip"
+                className="maaa-pill-btn"
+              >
+                <svg className="size-4 shrink-0" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.63-.76 1.05-1.82.93-2.87-.91.04-2.02.61-2.67 1.37-.58.67-1.09 1.76-.95 2.8.01 0 .03 0 .05 0 1.01 0 2.01-.54 2.64-1.3" />
+                </svg>
+                <span>Download for Mac</span>
+              </a>
+            </div>
+            <p className="text-[13px] text-[#767674] tracking-tight text-center mt-1">
+              Free · Direct install on Windows &amp; macOS (Apple Silicon &amp; Intel)
             </p>
           </div>
         </div>
@@ -306,7 +264,7 @@ function Index() {
               01 / A little fuel
             </p>
             <div className="size-[110px] rounded-2xl overflow-hidden mb-6 shadow-sm border border-[#e8e8e2]">
-              <img src={avatarSrc} alt="Ammi reminder avatar" width={110} height={110} className="size-full object-cover" />
+              <img src={appIcon} alt="Ammi reminder avatar" width={110} height={110} className="size-full object-cover" />
             </div>
             <h3 className="text-[25px] font-normal tracking-[-0.7px] leading-[1.15] text-[#151515]">
               Khana kha liya?
@@ -323,7 +281,7 @@ function Index() {
               02 / A little pause
             </p>
             <div className="size-[110px] rounded-2xl overflow-hidden mb-6 shadow-sm border border-[#e8e8e2]">
-              <img src={avatarSrc} alt="Ammi reminder avatar" width={110} height={110} className="size-full object-cover" />
+              <img src={appIcon} alt="Ammi reminder avatar" width={110} height={110} className="size-full object-cover" />
             </div>
             <h3 className="text-[25px] font-normal tracking-[-0.7px] leading-[1.15] text-[#151515]">
               Pani pee lo.
@@ -340,7 +298,7 @@ function Index() {
               03 / A little care
             </p>
             <div className="size-[110px] rounded-2xl overflow-hidden mb-6 shadow-sm border border-[#e8e8e2]">
-              <img src={avatarSrc} alt="Ammi reminder avatar" width={110} height={110} className="size-full object-cover" />
+              <img src={appIcon} alt="Ammi reminder avatar" width={110} height={110} className="size-full object-cover" />
             </div>
             <h3 className="text-[25px] font-normal tracking-[-0.7px] leading-[1.15] text-[#151515]">
               Seedhi tarhan baitho.
@@ -371,19 +329,19 @@ function Index() {
           {/* Portrait Row with subtle elevation variation */}
           <div className="flex justify-center items-center gap-3 sm:gap-4 my-10">
             <div className="size-20 sm:size-24 rounded-full overflow-hidden shadow-sm border border-white/60">
-              <img src={avatarSrc} alt="Ammi portrait" className="size-full object-cover" />
+              <img src={appIcon} alt="Ammi portrait" className="size-full object-cover" />
             </div>
             <div className="size-20 sm:size-24 rounded-full overflow-hidden shadow-sm border border-white/60 translate-y-3">
-              <img src={avatarSrc} alt="Ammi portrait" className="size-full object-cover" />
+              <img src={appIcon} alt="Ammi portrait" className="size-full object-cover" />
             </div>
             <div className="size-24 sm:size-28 rounded-full overflow-hidden shadow-md border-2 border-white scale-105">
-              <img src={avatarSrc} alt="Ammi portrait" className="size-full object-cover" />
+              <img src={appIcon} alt="Ammi portrait" className="size-full object-cover" />
             </div>
             <div className="size-20 sm:size-24 rounded-full overflow-hidden shadow-sm border border-white/60 translate-y-3">
-              <img src={avatarSrc} alt="Ammi portrait" className="size-full object-cover" />
+              <img src={appIcon} alt="Ammi portrait" className="size-full object-cover" />
             </div>
             <div className="size-20 sm:size-24 rounded-full overflow-hidden shadow-sm border border-white/60">
-              <img src={avatarSrc} alt="Ammi portrait" className="size-full object-cover" />
+              <img src={appIcon} alt="Ammi portrait" className="size-full object-cover" />
             </div>
           </div>
 
@@ -494,7 +452,7 @@ function Index() {
               Download &amp; install.
             </h3>
             <p className="text-[16px] text-[#727270] leading-[1.6] mt-3">
-              Direct <span className="text-[#151515] font-medium">Ammi-Setup.exe</span> installer. No extraction needed, zero configuration.
+              Direct <span className="text-[#151515] font-medium">Ammi-Setup.exe</span> for Windows or standalone <span className="text-[#151515] font-medium">Ammi.app</span> for Mac. Zero configuration.
             </p>
           </div>
 
@@ -558,27 +516,38 @@ function Index() {
           SECTION 6: CLOSING HERO & FOOTER
           ========================================================= */}
       <section className="border-t border-[#deded8] px-6 py-28 text-center">
-        <div className="size-24 rounded-full overflow-hidden mx-auto mb-6 shadow-md border-2 border-white">
-          <img src={avatarSrc} alt="Ammi avatar portrait" className="size-full object-cover" />
+        <div className="w-24 sm:w-28 h-24 sm:h-28 mx-auto mb-6 flex items-center justify-center filter drop-shadow-[0_10px_20px_rgba(0,0,0,0.14)]">
+          <img src={appIcon} alt="Ammi avatar portrait" className="w-full h-auto object-contain" />
         </div>
         <h2 className="text-[44px] sm:text-[56px] font-normal tracking-[-2px] leading-[1.1] text-[#151515]">
           A little home.<br />Right here.
         </h2>
 
-        <div className="mt-8">
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-2.5">
           <a
             href="/Ammi-Setup.exe"
             download="Ammi-Setup.exe"
             className="maaa-pill-btn"
           >
-            <svg className="size-5 shrink-0" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <svg className="size-4 shrink-0" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
               <path d="M2 3.4 10.8 2v9.4H2V3.4Zm10 8V1.8L22 0v11.4H12ZM2 12.6h8.8V22L2 20.6v-8Zm10 0h10V24l-10-1.8v-9.6Z" />
             </svg>
-            <span>Download for Windows (.exe)</span>
+            <span>Download for Windows</span>
+          </a>
+
+          <a
+            href="/Ammi-mac.zip"
+            download="Ammi-mac.zip"
+            className="maaa-pill-btn"
+          >
+            <svg className="size-4 shrink-0" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.63-.76 1.05-1.82.93-2.87-.91.04-2.02.61-2.67 1.37-.58.67-1.09 1.76-.95 2.8.01 0 .03 0 .05 0 1.01 0 2.01-.54 2.64-1.3" />
+            </svg>
+            <span>Download for Mac</span>
           </a>
         </div>
-        <p className="text-[13px] text-[#727270] mt-4">
-          Direct Setup EXE · Windows 10 &amp; 11 · 64-bit · Free
+        <p className="text-[13px] text-[#727270] mt-3">
+          Free · Windows 10 &amp; 11 · macOS (Apple Silicon &amp; Intel)
         </p>
       </section>
 
@@ -588,7 +557,7 @@ function Index() {
           ammi
         </a>
         <span>Made with care.</span>
-        <span>Windows desktop companion</span>
+        <span>Windows &amp; macOS desktop companion</span>
       </footer>
     </div>
   );

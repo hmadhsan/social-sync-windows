@@ -77,17 +77,18 @@
         align-items: center;
       }
       .peeker-circle {
-        width: 96px;
-        height: 96px;
-        border-radius: 50%;
-        overflow: hidden;
-        border: 2px solid rgba(255, 255, 255, 0.15);
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+        width: 104px;
+        height: 104px;
+        overflow: visible;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.45));
       }
       .peeker-circle img {
         width: 100%;
         height: 100%;
-        object-fit: cover;
+        object-fit: contain;
       }
       .peeker-hands {
         position: absolute;
@@ -130,16 +131,19 @@
         margin-bottom: 28px;
       }
       .preview-mini-avatar {
-        width: 44px;
-        height: 44px;
-        border-radius: 50%;
-        overflow: hidden;
+        width: 48px;
+        height: 48px;
+        overflow: visible;
         flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.35));
       }
       .preview-mini-avatar img {
         width: 100%;
         height: 100%;
-        object-fit: cover;
+        object-fit: contain;
       }
       .preview-text {
         font-family: Georgia, serif;
@@ -289,7 +293,7 @@
     <div class="stage active" id="stage1">
       <div class="ammi-peeker">
         <div class="peeker-circle">
-          <img src="favicon.png" alt="Ammi avatar" />
+          <img src="ammi-portrait.png" alt="Ammi avatar" />
         </div>
         <div class="peeker-hands">
           <div class="hand-paw"></div>
@@ -297,15 +301,7 @@
         </div>
       </div>
       <h1>A little closer to home.</h1>
-      <p class="subtitle">A little care, right on your PC.</p>
-      <div style="margin-top: -10px; margin-bottom: 20px; display: flex; flex-direction: column; align-items: center; gap: 8px;">
-        <button type="button" id="btnUploadPhoto" style="background: rgba(255, 255, 255, 0.12); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.25); border-radius: 20px; padding: 9px 20px; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s ease;">
-          📷 Upload Mom's Photo (Optional)
-        </button>
-        <button type="button" id="btnResetPhoto" style="display: none; background: transparent; color: #888888; border: none; font-size: 12px; text-decoration: underline; cursor: pointer;">
-          Reset to default avatar
-        </button>
-      </div>
+      <p class="subtitle">A little care, right on your screen.</p>
     </div>
 
     <!-- STAGE 2: Language Selection (English, Urdu, German, Punjabi) -->
@@ -315,7 +311,7 @@
 
       <div class="dialogue-preview">
         <div class="preview-mini-avatar">
-          <img src="favicon.png" alt="Ammi avatar" />
+          <img src="ammi-portrait.png" alt="Ammi avatar" />
         </div>
         <div class="preview-text" id="previewDialogue">Have you eaten?</div>
       </div>
@@ -406,7 +402,6 @@
       let currentStep = 1;
       let selectedLang = "english";
       let selectedEnergy = "playful";
-      let selectedCustomPhoto = null;
 
       const DIALOGUES = {
         english: "Have you eaten?",
@@ -431,56 +426,6 @@
 
       const btnNext = document.getElementById("btnNext");
       const previewDialogue = document.getElementById("previewDialogue");
-      const btnUploadPhoto = document.getElementById("btnUploadPhoto");
-      const btnResetPhoto = document.getElementById("btnResetPhoto");
-
-      function updateAvatarImages(url) {
-        const src = url || "favicon.png";
-        document.querySelectorAll(".peeker-circle img, .preview-mini-avatar img").forEach((img) => {
-          img.src = src;
-        });
-        if (btnResetPhoto && btnUploadPhoto) {
-          btnResetPhoto.style.display = url ? "block" : "none";
-          btnUploadPhoto.textContent = url ? "📸 Change Mom's Photo" : "📷 Upload Mom's Photo (Optional)";
-        }
-      }
-
-      if (btnUploadPhoto) {
-        btnUploadPhoto.addEventListener("click", async () => {
-          if (window.ammi && window.ammi.selectPhoto) {
-            const photo = await window.ammi.selectPhoto();
-            if (photo) {
-              selectedCustomPhoto = photo;
-              updateAvatarImages(photo);
-            }
-          } else {
-            const input = document.createElement("input");
-            input.type = "file";
-            input.accept = "image/*";
-            input.onchange = (e) => {
-              const file = e.target.files && e.target.files[0];
-              if (!file) return;
-              const reader = new FileReader();
-              reader.onload = () => {
-                selectedCustomPhoto = reader.result;
-                updateAvatarImages(selectedCustomPhoto);
-              };
-              reader.readAsDataURL(file);
-            };
-            input.click();
-          }
-        });
-      }
-
-      if (btnResetPhoto) {
-        btnResetPhoto.addEventListener("click", () => {
-          selectedCustomPhoto = null;
-          if (window.ammi && window.ammi.removePhoto) {
-            window.ammi.removePhoto();
-          }
-          updateAvatarImages(null);
-        });
-      }
 
       function updateUI() {
         stages.forEach((s, idx) => {
@@ -528,7 +473,6 @@
             window.ammi.finishOnboarding({
               language: selectedLang,
               energy: selectedEnergy,
-              customPhoto: selectedCustomPhoto,
             });
           } else {
             window.close();

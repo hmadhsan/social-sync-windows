@@ -5,7 +5,5 @@ contextBridge.exposeInMainWorld("ammi", {
   onCursor: (cb) => ipcRenderer.on("cursor", (_e, pos) => cb(pos)),
   onSay: (cb) => ipcRenderer.on("say", () => cb()),
   finishOnboarding: (data) => ipcRenderer.send("onboarding:finish", data),
-  selectPhoto: () => ipcRenderer.invoke("photo:select"),
-  removePhoto: () => ipcRenderer.send("photo:remove"),
 });
 

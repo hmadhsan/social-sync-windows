@@ -13,7 +13,8 @@
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "pack:mac": "node electron/build-mac.mjs"
   },
   "overrides": {
     "rolldown": "1.2.1"
@@ -89,7 +90,24 @@
     "prettier": "^3.7.3",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.56.1",
-    "vite": "8.1.5"
+    "vite": "8.1.5",
+    "electron": "44.4.1",
+    "electron-builder": "^26.15.3"
+  },
+  "build": {
+    "appId": "app.ammi.desktop",
+    "productName": "Ammi",
+    "files": [
+      "build/**/*",
+      "electron/**/*",
+      "public/**/*"
+    ],
+    "mac": {
+      "target": ["dmg"],
+      "category": "public.app-category.lifestyle",
+      "icon": "build/tray.png",
+      "identity": null
+    }
   },
   "main": "electron/main.cjs"
 }

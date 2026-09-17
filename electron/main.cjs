@@ -79,7 +79,6 @@ const defaults = {
   language: "urdu",
   energy: "playful",
   onboardingComplete: false,
-  customPhoto: null,
   enabled: REMINDERS.map((r) => r.key),
 };
 
@@ -128,6 +127,9 @@ function createOnboardingWindow() {
     onboardingWin.focus();
     return;
   }
+  if (process.platform === "darwin" && app.dock) {
+    app.dock.show();
+  }
   onboardingWin = new BrowserWindow({
     width: 580,
     height: 640,
@@ -149,45 +151,19 @@ function createOnboardingWindow() {
   onboardingWin.loadFile(path.join(__dirname, "..", "public", "onboarding.html"));
 }
 
-async function handleSelectPhoto() {
-  const result = await dialog.showOpenDialog({
-    title: "Select Mom's Photo",
-    properties: ["openFile"],
-    filters: [{ name: "Images", extensions: ["jpg", "png", "jpeg", "webp"] }],
-  });
-  if (result.canceled || !result.filePaths.length) return null;
-  const filePath = result.filePaths[0];
-  try {
-    const fileData = fs.readFileSync(filePath);
-    const ext = path.extname(filePath).toLowerCase();
-    const mime = ext === ".png" ? "image/png" : ext === ".webp" ? "image/webp" : "image/jpeg";
-    const dataUrl = `data:${mime};base64,${fileData.toString("base64")}`;
-    set({ customPhoto: dataUrl });
-    return dataUrl;
-  } catch {
-    return null;
-  }
-}
-
-ipcMain.handle("photo:select", async () => {
-  return await handleSelectPhoto();
-});
-
-ipcMain.on("photo:remove", () => {
-  set({ customPhoto: null });
-});
-
 ipcMain.on("onboarding:finish", (_e, data) => {
   if (data) {
     if (data.language) config.language = data.language;
     if (data.energy) config.energy = data.energy;
-    if (data.customPhoto !== undefined) config.customPhoto = data.customPhoto;
   }
   config.onboardingComplete = true;
   saveConfig();
 
   if (onboardingWin && !onboardingWin.isDestroyed()) {
     onboardingWin.close();
+  }
+  if (process.platform === "darwin" && app.dock) {
+    app.dock.hide();
   }
 
   if (!win || win.isDestroyed()) {
@@ -317,24 +293,10 @@ function buildTray() {
       radio("Pause her reminders", !config.auto, () => set({ auto: !config.auto })),
       { type: "separator" },
       {
-        label: "Change Mom's photo...",
-        click: async () => {
-          await handleSelectPhoto();
-        },
-      },
-      ...(config.customPhoto
-        ? [
-            {
-              label: "Reset to default photo",
-              click: () => set({ customPhoto: null }),
-            },
-          ]
-        : []),
-      {
         label: "Set up again...",
         click: () => createOnboardingWindow(),
       },
-      radio("Start with Windows", startsWithWindows(), () => {
+      radio(process.platform === "darwin" ? "Start at login" : "Start with Windows", startsWithWindows(), () => {
         try {
           app.setLoginItemSettings({ openAtLogin: !startsWithWindows(), path: process.execPath });
         } catch {
@@ -342,23 +304,27 @@ function buildTray() {
         }
         buildTray();
       }),
-      {
-        label: "Put an icon on my desktop",
-        click: () => {
-          if (process.platform !== "win32") return;
-          try {
-            shell.writeShortcutLink(path.join(app.getPath("desktop"), `${APP_NAME}.lnk`), "create", {
-              target: process.execPath,
-              icon: process.execPath,
-              iconIndex: 0,
-              description: `${APP_NAME} — someone's looking out for you`,
-              appUserModelId: "app.ammi.desktop",
-            });
-          } catch {
-            /* ignore */
-          }
-        },
-      },
+      ...(process.platform === "win32"
+        ? [
+            {
+              label: "Put an icon on my desktop",
+              click: () => {
+                if (process.platform !== "win32") return;
+                try {
+                  shell.writeShortcutLink(path.join(app.getPath("desktop"), `${APP_NAME}.lnk`), "create", {
+                    target: process.execPath,
+                    icon: process.execPath,
+                    iconIndex: 0,
+                    description: `${APP_NAME} — someone's looking out for you`,
+                    appUserModelId: "app.ammi.desktop",
+                  });
+                } catch {
+                  /* ignore */
+                }
+              },
+            },
+          ]
+        : []),
       { type: "separator" },
       { label: "Quit", click: () => app.quit() },
     ]),
@@ -368,6 +334,13 @@ function buildTray() {
 app.whenReady().then(() => {
   loadConfig();
   ensureShortcuts();
+  if (process.platform === "darwin" && app.dock) {
+    if (!config.onboardingComplete) {
+      app.dock.show();
+    } else {
+      app.dock.hide();
+    }
+  }
   if (!config.onboardingComplete) {
     createOnboardingWindow();
   } else {

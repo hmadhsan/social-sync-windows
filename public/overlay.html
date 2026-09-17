@@ -11,7 +11,7 @@
         height: 100%;
         background: transparent;
         overflow: hidden;
-        font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       }
       #stage {
         position: fixed;
@@ -23,9 +23,9 @@
         top: 0;
         display: flex;
         align-items: flex-start;
-        gap: 14px;
-        transform: translateY(-130%);
-        transition: transform 0.85s cubic-bezier(0.22, 1.4, 0.36, 1);
+        gap: 16px;
+        transform: translateY(-135%);
+        transition: transform 0.85s cubic-bezier(0.22, 1.35, 0.36, 1);
         will-change: transform;
       }
       #pod.in {
@@ -33,221 +33,79 @@
       }
       #ammi {
         position: relative;
-        width: 150px;
+        width: 140px;
+        height: 140px;
+        background: transparent;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        overflow: visible;
         flex: none;
-        filter: drop-shadow(0 10px 22px rgba(50, 20, 10, 0.28));
+        filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.32));
+        transform-origin: top center;
+        transition: transform 0.3s ease;
+      }
+      #ammiImg {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        object-position: top center;
+        display: block;
+        transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
       }
       #bubble {
         position: relative;
-        margin-top: 46px;
-        max-width: 330px;
-        padding: 14px 18px 15px;
-        border-radius: 4px 20px 20px 20px;
-        background: #fffdf6;
-        border: 1px solid rgba(90, 55, 30, 0.14);
-        box-shadow: 0 18px 40px -18px rgba(60, 30, 12, 0.45);
+        margin-top: 32px;
+        max-width: 320px;
+        padding: 16px 22px;
+        border-radius: 20px;
+        background: #ffffff;
+        border: 1px solid rgba(222, 222, 216, 0.85);
+        box-shadow: 0 14px 38px rgba(0, 0, 0, 0.15);
         opacity: 0;
-        transform: translateY(-6px) scale(0.96);
+        transform: translateY(-8px) scale(0.96);
         transform-origin: top left;
         transition:
-          opacity 0.4s ease,
-          transform 0.5s cubic-bezier(0.22, 1.3, 0.36, 1);
+          opacity 0.35s ease,
+          transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      #bubble::before {
+        content: "";
+        position: absolute;
+        left: -8px;
+        top: 24px;
+        width: 0;
+        height: 0;
+        border-top: 7px solid transparent;
+        border-bottom: 7px solid transparent;
+        border-right: 8px solid #ffffff;
       }
       #pod.in #bubble {
         opacity: 1;
         transform: translateY(0) scale(1);
-        transition-delay: 0.34s;
+        transition-delay: 0.22s;
       }
       #urdu {
         margin: 0;
-        color: #3a2318;
-        font-size: 19px;
-        line-height: 1.32;
+        color: #151515;
+        font-size: 17px;
+        line-height: 1.35;
         font-weight: 600;
-        letter-spacing: -0.01em;
+        letter-spacing: -0.2px;
       }
       #english {
-        margin: 6px 0 0;
-        color: #8b6a55;
-        font-size: 14px;
+        margin: 5px 0 0;
+        color: #727270;
+        font-size: 13.5px;
         line-height: 1.35;
-      }
-      @keyframes sway {
-        0%,
-        100% {
-          transform: rotate(-1.6deg);
-        }
-        50% {
-          transform: rotate(1.6deg);
-        }
-      }
-      #swayer {
-        transform-origin: 100px 8px;
-        animation: sway 4.6s ease-in-out infinite;
       }
     </style>
   </head>
   <body>
     <div id="stage">
       <div id="pod">
-        <!-- Vector Avatar SVG (Default) -->
-        <svg id="ammi" viewBox="0 0 200 250" aria-hidden="true">
-          <g id="swayer">
-            <!-- hanging dupatta / body coming down from the top edge -->
-            <path
-              id="dupattaBack"
-              d="M100 0 C40 0 26 60 24 120 C22 170 34 210 44 250 L156 250 C166 210 178 170 176 120 C174 60 160 0 100 0 Z"
-              fill="#c2455f"
-            />
-            <path
-              d="M100 0 C62 0 46 40 42 96 C64 74 78 66 100 66 C122 66 136 74 158 96 C154 40 138 0 100 0 Z"
-              fill="#a8324b"
-            />
-            <!-- neck -->
-            <rect x="88" y="120" width="24" height="26" rx="10" fill="#c98d63" />
-            <!-- shoulders / kameez -->
-            <path
-              d="M100 136 C68 136 48 168 44 250 L156 250 C152 168 132 136 100 136 Z"
-              fill="#1f6b52"
-            />
-            <path d="M100 140 L100 250" stroke="#17553f" stroke-width="3" />
-            <!-- hair -->
-            <path
-              d="M100 24 C68 24 54 52 56 86 C58 108 62 120 66 128 C60 100 64 70 100 70 C136 70 140 100 134 128 C138 120 142 108 144 86 C146 52 132 24 100 24 Z"
-              fill="#241a18"
-            />
-            <!-- mature silver hair streaks -->
-            <path d="M96 28 C91 40 87 60 85 80" stroke="#c0b8b6" stroke-width="1.8" stroke-linecap="round" fill="none" opacity="0.65" />
-            <path d="M104 28 C109 40 113 60 115 80" stroke="#c0b8b6" stroke-width="1.8" stroke-linecap="round" fill="none" opacity="0.65" />
-            <path d="M90 35 C83 50 79 72 77 86" stroke="#c0b8b6" stroke-width="1.4" stroke-linecap="round" fill="none" opacity="0.5" />
-            <path d="M110 35 C117 50 121 72 123 86" stroke="#c0b8b6" stroke-width="1.4" stroke-linecap="round" fill="none" opacity="0.5" />
-            <!-- face -->
-            <ellipse cx="100" cy="94" rx="38" ry="42" fill="#e0a97c" />
-            <!-- cheeks -->
-            <ellipse id="cheekL" cx="80" cy="106" rx="9" ry="6" fill="#d0715f" opacity="0.4" />
-            <ellipse id="cheekR" cx="120" cy="106" rx="9" ry="6" fill="#d0715f" opacity="0.4" />
-            <!-- gentle motherly laugh lines -->
-            <path d="M78 88 C76 90 75 93 74 96" stroke="#b97d53" stroke-width="1.3" stroke-linecap="round" fill="none" opacity="0.45" />
-            <path d="M122 88 C124 90 125 93 126 96" stroke="#b97d53" stroke-width="1.3" stroke-linecap="round" fill="none" opacity="0.45" />
-            <!-- brows -->
-            <path
-              id="browL"
-              d="M82 78 C86 74 94 74 98 77"
-              stroke="#2b1d1a"
-              stroke-width="4"
-              stroke-linecap="round"
-              fill="none"
-            />
-            <path
-              id="browR"
-              d="M118 78 C114 74 106 74 102 77"
-              stroke="#2b1d1a"
-              stroke-width="4"
-              stroke-linecap="round"
-              fill="none"
-            />
-            <!-- eyes -->
-            <g id="eyes">
-              <ellipse cx="87" cy="90" rx="7.5" ry="8" fill="#fffdf7" />
-              <ellipse cx="113" cy="90" rx="7.5" ry="8" fill="#fffdf7" />
-              <g id="pupils">
-                <circle cx="87" cy="91" r="4" fill="#2b1d1a" />
-                <circle cx="113" cy="91" r="4" fill="#2b1d1a" />
-              </g>
-              <rect id="lidL" x="79" y="82" width="16" height="0" fill="#e0a97c" />
-              <rect id="lidR" x="105" y="82" width="16" height="0" fill="#e0a97c" />
-            </g>
-            <!-- nose + nose pin -->
-            <path
-              d="M100 96 C97 104 98 108 102 109"
-              stroke="#b97d53"
-              stroke-width="3"
-              fill="none"
-              stroke-linecap="round"
-            />
-            <circle cx="93" cy="107" r="2" fill="#e8c46a" />
-            <!-- mouth -->
-            <path
-              id="mouth"
-              d="M91 118 C96 124 104 124 109 118"
-              stroke="#8c3a34"
-              stroke-width="3.5"
-              fill="none"
-              stroke-linecap="round"
-            />
-            <!-- custom uploaded mom photo face overlay -->
-            <image
-              id="customPhotoImg"
-              x="62"
-              y="52"
-              width="76"
-              height="84"
-              preserveAspectRatio="xMidYMid slice"
-              clip-path="url(#customFaceClip)"
-              style="display: none;"
-            />
-            <!-- dupatta over the head -->
-            <path
-              d="M100 20 C64 20 48 50 50 92 C52 74 58 62 66 56 C74 34 84 30 100 30 C116 30 126 34 134 56 C142 62 148 74 150 92 C152 50 136 20 100 20 Z"
-              fill="#e4657f"
-            />
-            <!-- dupatta zari golden lace border -->
-            <path
-              d="M50 90 C52 74 58 62 66 56 C74 34 84 30 100 30 C116 30 126 34 134 56 C142 62 148 74 150 90"
-              stroke="#e8c46a"
-              stroke-width="2.5"
-              stroke-linecap="round"
-              fill="none"
-              opacity="0.85"
-            />
-            <path
-              d="M52 88 C46 130 46 176 52 214 C60 176 60 128 56 92 Z"
-              fill="#e4657f"
-              opacity="0.95"
-            />
-            <path
-              d="M52 88 C46 130 46 176 52 214"
-              stroke="#e8c46a"
-              stroke-width="2"
-              fill="none"
-              opacity="0.75"
-            />
-            <path
-              d="M148 88 C154 130 154 176 148 214 C140 176 140 128 144 92 Z"
-              fill="#e4657f"
-              opacity="0.95"
-            />
-            <path
-              d="M148 88 C154 130 154 176 148 214"
-              stroke="#e8c46a"
-              stroke-width="2"
-              fill="none"
-              opacity="0.75"
-            />
-            <!-- earrings -->
-            <circle cx="63" cy="100" r="4" fill="#e8c46a" />
-            <circle cx="137" cy="100" r="4" fill="#e8c46a" />
-            <!-- raised hand with gold bangle -->
-            <g id="hand">
-              <path
-                d="M150 172 C160 160 166 146 168 136"
-                stroke="#1f6b52"
-                stroke-width="18"
-                stroke-linecap="round"
-                fill="none"
-              />
-              <rect x="156" y="142" width="14" height="4" rx="2" fill="#e8c46a" transform="rotate(-35 163 144)" />
-              <circle cx="170" cy="130" r="12" fill="#e0a97c" />
-            </g>
-          </g>
-        </svg>
-        <!-- Custom Photo Notch Pod (When user uploads custom photo) -->
-        <div id="customAvatarPod" style="display: none; position: relative; width: 140px; flex: none;">
-          <div style="position: relative; width: 110px; height: 130px; margin: 0 auto; background: #151515; border-radius: 0 0 55px 55px; padding-top: 10px; display: flex; justify-content: center; align-items: flex-end; padding-bottom: 10px; border: 2px solid rgba(255, 255, 255, 0.2); border-top: none; box-shadow: 0 10px 24px rgba(0,0,0,0.45);">
-            <div style="width: 92px; height: 92px; border-radius: 50%; overflow: hidden; border: 2.5px solid #ffffff; box-shadow: 0 4px 14px rgba(0,0,0,0.5);">
-              <img id="customAvatarImg" src="" alt="Ammi avatar portrait" style="width: 100%; height: 100%; object-fit: cover; object-position: top;" />
-            </div>
-          </div>
+        <div id="ammi">
+          <img id="ammiImg" src="ammi-portrait.png" alt="Ammi portrait" />
         </div>
         <div id="bubble">
           <p id="urdu">Pani pee lo.</p>
@@ -300,82 +158,83 @@
         },
         {
           key: "posture",
-          urdu: "Seedhi tarhan baitho, kamar kharab ho jaye gi.",
-          en: "Sit up straight, you'll ruin your back.",
-          de: "Sitz gerade hin, denk an deinen Rücken.",
-          pa: "Sidhay hoke baitho, lakk dukhau ga.",
+          urdu: "Seedhi tarhan baitho, peeth jhuki hui hai.",
+          en: "Sit straight, your back is hunched.",
+          de: "Sitz gerade, dein Rücken ist krumm.",
+          pa: "Siddhe hoke baitho, pith jhukayi hoyi ae.",
           mood: "scold",
         },
         {
           key: "late",
-          urdu: "Ab tak jaag rahe ho? Kal kaam nahi hai?",
-          en: "Still awake? Don't you have work tomorrow?",
-          de: "Noch wach? Musst du morgen nicht raus?",
-          pa: "Aje takk jagde paye ho? Saun da vela ho gaya.",
-          mood: "sleepy",
+          urdu: "Bohat raat ho gayi hai, so jao ab.",
+          en: "It's very late, go to sleep now.",
+          de: "Es ist spät, geh schlafen.",
+          pa: "Badi raat ho gayi ae, so jao hunn.",
+          mood: "caring",
         },
         {
           key: "charger",
-          urdu: "Charger laga lo, battery khatam ho rahi hai.",
-          en: "Plug the charger in, your battery is low.",
-          de: "Schließ das Ladekabel an, Akku ist fast leer.",
-          pa: "Charger laa lo, battery mukan aali hai.",
-          mood: "scold",
+          urdu: "Charger laga lo, band na ho jaye.",
+          en: "Plug in the charger before it dies.",
+          de: "Steck das Ladekabel ein.",
+          pa: "Charger laa lo, band na ho jaave.",
+          mood: "caring",
         },
         {
           key: "medicine",
-          urdu: "Dawai le li?",
-          en: "Did you take your medicine?",
-          de: "Hast du deine Medizin genommen?",
-          pa: "Dawai le layi time naal?",
+          urdu: "Dawai ka waqt ho gaya, yaad hai?",
+          en: "Time for medicine, remember?",
+          de: "Zeit für Medizin, denkst du dran?",
+          pa: "Dawaayi da vella ho gaya, chete ae?",
           mood: "caring",
         },
         {
           key: "morning",
-          urdu: "Subha bakhair! Aaj apna khayal rakhna.",
-          en: "Good morning! Look after yourself today.",
-          de: "Guten Morgen! Pass gut auf dich auf heute.",
-          pa: "Subha bakhair! Apna khayal rakhna aaj.",
+          urdu: "Subha bakhair! Chai peeli?",
+          en: "Good morning! Had your morning tea?",
+          de: "Guten Morgen! Schon Tee getrunken?",
+          pa: "Subha bakhair! Chah pee layi?",
           mood: "happy",
         },
         {
           key: "call",
-          urdu: "Break mein phone karna, awaz sunni hai.",
-          en: "Call me on your break, I want to hear your voice.",
-          de: "Ruf mich in der Pause an, will deine Stimme hören.",
-          pa: "Vehl mile te phone karna, gall karni hai.",
+          urdu: "Waqt mile to phone karna.",
+          en: "Call home when you get a minute.",
+          de: "Ruf an, wenn du kurz Zeit hast.",
+          pa: "Vella mile te phone kar layin.",
           mood: "caring",
         },
         {
           key: "praise",
-          urdu: "Shabash mera bacha. Ab thora aaram karo.",
-          en: "Well done, my child. Now rest a bit.",
-          de: "Sehr gut gemacht! Ruh dich jetzt etwas aus.",
-          pa: "Shabash mere bachay! Hun thora aaram karo.",
+          urdu: "Shabash mera bacha. Mujhe fakhar hai.",
+          en: "Well done my child. I'm so proud of you.",
+          de: "Gut gemacht, mein Kind. Ich bin stolz auf dich.",
+          pa: "Shabash mere bacheya. Mainu maan ae tere te.",
           mood: "happy",
         },
         {
           key: "phone",
-          urdu: "Phone rakh do thori dair.",
-          en: "Put the phone down for a while.",
-          de: "Leg das Handy mal zur Seite.",
-          pa: "Phone rakh dyo thori der.",
+          urdu: "Thora phone rakh do, aaraam karo.",
+          en: "Put the phone down for a minute, rest.",
+          de: "Leg das Handy mal weg, ruh dich aus.",
+          pa: "Thora phone rakh de, aaraam kar le.",
           mood: "scold",
         },
         {
           key: "dua",
-          urdu: "Duaon mein yaad rakhti hoon.",
-          en: "You're always in my prayers.",
-          de: "Ich denke immer an dich.",
-          pa: "Duaawan ch yaad rakhde aan.",
-          mood: "happy",
+          urdu: "Har qadam par Allah hifazat farmaye.",
+          en: "May Allah protect you at every step.",
+          de: "Möge Gott dich auf jedem Schritt beschützen.",
+          pa: "Rab tuhadi har qadam te raksha kare.",
+          mood: "caring",
         },
       ];
 
       const defaults = {
-        position: "center", // center | left | right
-        interval: 25, // seconds between visits
-        visible: 9, // seconds she stays on screen
+        language: "urdu",
+        position: "center",
+        interval: 25 * 60,
+        visible: 9,
         translation: true,
         scale: 1,
         auto: true,
@@ -385,19 +244,10 @@
 
       let config = { ...defaults };
       const pod = document.getElementById("pod");
-      const svg = document.getElementById("ammi");
+      const ammi = document.getElementById("ammi");
+      const ammiImg = document.getElementById("ammiImg");
       const urdu = document.getElementById("urdu");
       const english = document.getElementById("english");
-      const pupils = document.getElementById("pupils");
-      const lidL = document.getElementById("lidL");
-      const lidR = document.getElementById("lidR");
-      const mouth = document.getElementById("mouth");
-      const browL = document.getElementById("browL");
-      const browR = document.getElementById("browR");
-      const cheekL = document.getElementById("cheekL");
-      const cheekR = document.getElementById("cheekR");
-      const hand = document.getElementById("hand");
-      const customPhotoImg = document.getElementById("customPhotoImg");
 
       let index = 0;
       let visitTimer = null;
@@ -410,8 +260,9 @@
 
       function place() {
         const w = window.innerWidth;
-        pod.style.transform = pod.classList.contains("in") ? "" : "";
-        svg.style.width = 150 * config.scale + "px";
+        if (ammi) {
+          ammi.style.transform = `scale(${config.scale || 1})`;
+        }
         const podWidth = pod.offsetWidth || 480;
         let left = (w - podWidth) / 2;
         if (config.position === "left") left = Math.min(40, w * 0.04);
@@ -420,34 +271,13 @@
       }
 
       function mood(kind) {
-        const wave = kind === "happy" || kind === "caring";
-        hand.style.transition = "transform .5s ease";
-        hand.style.transformOrigin = "150px 175px";
-        hand.style.transform = wave ? "rotate(-12deg)" : "rotate(10deg)";
-        if (kind === "scold") {
-          browL.setAttribute("d", "M82 74 C86 78 94 79 98 80");
-          browR.setAttribute("d", "M118 74 C114 78 106 79 102 80");
-          mouth.setAttribute("d", "M90 121 C96 116 104 116 110 121");
-          cheekL.setAttribute("opacity", "0.5");
-          cheekR.setAttribute("opacity", "0.5");
-        } else if (kind === "sleepy") {
-          browL.setAttribute("d", "M82 80 C86 78 94 78 98 80");
-          browR.setAttribute("d", "M118 80 C114 78 106 78 102 80");
-          mouth.setAttribute("d", "M93 119 C98 121 103 121 108 119");
-          cheekL.setAttribute("opacity", "0.25");
-          cheekR.setAttribute("opacity", "0.25");
-        } else if (kind === "happy") {
-          browL.setAttribute("d", "M82 76 C86 71 94 71 98 75");
-          browR.setAttribute("d", "M118 76 C114 71 106 71 102 75");
-          mouth.setAttribute("d", "M88 116 C96 128 104 128 112 116");
-          cheekL.setAttribute("opacity", "0.55");
-          cheekR.setAttribute("opacity", "0.55");
+        if (!ammiImg) return;
+        if (kind === "happy" || kind === "caring") {
+          ammiImg.style.transform = "scale(1.04)";
+        } else if (kind === "scold") {
+          ammiImg.style.transform = "scale(1.01)";
         } else {
-          browL.setAttribute("d", "M82 78 C86 74 94 74 98 77");
-          browR.setAttribute("d", "M118 78 C114 74 106 74 102 77");
-          mouth.setAttribute("d", "M91 118 C96 124 104 124 109 118");
-          cheekL.setAttribute("opacity", "0.4");
-          cheekR.setAttribute("opacity", "0.4");
+          ammiImg.style.transform = "scale(1)";
         }
       }
 
@@ -501,25 +331,9 @@
         visitTimer = setInterval(next, Math.max(6, config.interval) * 1000);
       }
 
-      const customAvatarPod = document.getElementById("customAvatarPod");
-      const customAvatarImg = document.getElementById("customAvatarImg");
-
       function apply(patch) {
         config = { ...config, ...patch };
         if (!Array.isArray(config.enabled) || !config.enabled.length) config.enabled = defaults.enabled;
-
-        if (config.customPhoto) {
-          svg.style.display = "none";
-          if (customAvatarPod && customAvatarImg) {
-            customAvatarPod.style.display = "block";
-            customAvatarImg.src = config.customPhoto;
-          }
-        } else {
-          svg.style.display = "block";
-          if (customAvatarPod) {
-            customAvatarPod.style.display = "none";
-          }
-        }
 
         const list = pool();
         if (typeof patch.scenario === "number") {
@@ -532,27 +346,18 @@
         loop();
       }
 
-      // blinking + gentle idle life
-      setInterval(() => {
-        const h = 9;
-        lidL.setAttribute("height", h);
-        lidR.setAttribute("height", h);
-        setTimeout(() => {
-          lidL.setAttribute("height", 0);
-          lidR.setAttribute("height", 0);
-        }, 130);
-      }, 3800);
-
-      // her eyes follow the cursor
+      // Gentle gaze tracking when cursor moves
       function look(x, y) {
-        const box = svg.getBoundingClientRect();
+        if (!ammiImg) return;
+        const box = ammiImg.getBoundingClientRect();
         if (!box.width) return;
         const cx = box.left + box.width / 2;
-        const cy = box.top + box.height * 0.38;
-        const dx = Math.max(-1, Math.min(1, (x - cx) / 380));
-        const dy = Math.max(-1, Math.min(1, (y - cy) / 320));
-        pupils.setAttribute("transform", `translate(${dx * 2.6} ${dy * 2})`);
+        const cy = box.top + box.height / 2;
+        const dx = Math.max(-1, Math.min(1, (x - cx) / 400));
+        const dy = Math.max(-1, Math.min(1, (y - cy) / 400));
+        ammiImg.style.transform = `scale(1.03) translate(${dx * 3.5}px, ${dy * 2.5}px)`;
       }
+
       window.addEventListener("mousemove", (e) => look(e.clientX, e.clientY));
       window.addEventListener("resize", place);
 
