@@ -90,12 +90,8 @@
   <body>
     <div id="stage">
       <div id="pod">
+        <!-- Vector Avatar SVG (Default) -->
         <svg id="ammi" viewBox="0 0 200 250" aria-hidden="true">
-          <defs>
-            <clipPath id="customFaceClip">
-              <ellipse cx="100" cy="94" rx="38" ry="42" />
-            </clipPath>
-          </defs>
           <g id="swayer">
             <!-- hanging dupatta / body coming down from the top edge -->
             <path
@@ -245,6 +241,14 @@
             </g>
           </g>
         </svg>
+        <!-- Custom Photo Notch Pod (When user uploads custom photo) -->
+        <div id="customAvatarPod" style="display: none; position: relative; width: 140px; flex: none;">
+          <div style="position: relative; width: 110px; height: 130px; margin: 0 auto; background: #151515; border-radius: 0 0 55px 55px; padding-top: 10px; display: flex; justify-content: center; align-items: flex-end; padding-bottom: 10px; border: 2px solid rgba(255, 255, 255, 0.2); border-top: none; box-shadow: 0 10px 24px rgba(0,0,0,0.45);">
+            <div style="width: 92px; height: 92px; border-radius: 50%; overflow: hidden; border: 2.5px solid #ffffff; box-shadow: 0 4px 14px rgba(0,0,0,0.5);">
+              <img id="customAvatarImg" src="" alt="Ammi avatar portrait" style="width: 100%; height: 100%; object-fit: cover; object-position: top;" />
+            </div>
+          </div>
+        </div>
         <div id="bubble">
           <p id="urdu">Pani pee lo.</p>
           <p id="english">Drink some water.</p>
@@ -497,17 +501,26 @@
         visitTimer = setInterval(next, Math.max(6, config.interval) * 1000);
       }
 
+      const customAvatarPod = document.getElementById("customAvatarPod");
+      const customAvatarImg = document.getElementById("customAvatarImg");
+
       function apply(patch) {
         config = { ...config, ...patch };
         if (!Array.isArray(config.enabled) || !config.enabled.length) config.enabled = defaults.enabled;
-        if (customPhotoImg) {
-          if (config.customPhoto) {
-            customPhotoImg.setAttribute("href", config.customPhoto);
-            customPhotoImg.style.display = "block";
-          } else {
-            customPhotoImg.style.display = "none";
+
+        if (config.customPhoto) {
+          svg.style.display = "none";
+          if (customAvatarPod && customAvatarImg) {
+            customAvatarPod.style.display = "block";
+            customAvatarImg.src = config.customPhoto;
+          }
+        } else {
+          svg.style.display = "block";
+          if (customAvatarPod) {
+            customAvatarPod.style.display = "none";
           }
         }
+
         const list = pool();
         if (typeof patch.scenario === "number") {
           const wanted = REMINDERS[patch.scenario % REMINDERS.length];
