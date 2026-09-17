@@ -75,7 +75,7 @@ function Index() {
       {/* =========================================================
           HERO & LIVE NOTCH DEMO (Maaa Style)
           ========================================================= */}
-      <section className="relative min-h-[100svh] flex flex-col justify-between overflow-hidden">
+      <section className="relative flex flex-col justify-between overflow-hidden">
         {/* Header */}
         <header className="absolute inset-x-0 top-0 z-30 flex items-center justify-between px-6 sm:px-11 py-7">
           <a href="/" className="text-[32px] sm:text-[34px] font-bold tracking-[-1.4px] leading-none text-[#151515]">
@@ -91,7 +91,7 @@ function Index() {
         </header>
 
         {/* The Live Interactive Notch Demo */}
-        <div className="absolute inset-x-0 top-0 z-20 h-[240px] pointer-events-none flex justify-center">
+        <div className="absolute inset-x-0 top-0 z-20 h-[190px] pointer-events-none flex justify-center">
           {/* Black Notch */}
           <div className="maaa-notch group pointer-events-auto cursor-pointer shadow-md" onClick={handleSaySomething} title="Click to hear Ammi speak">
             <div className="absolute bottom-0 left-1/2 -translate-x-1/2 size-[92px] sm:size-[104px] overflow-hidden rounded-full transition-transform duration-300 group-hover:scale-105">
@@ -128,14 +128,14 @@ function Index() {
         </div>
 
         {/* Hero Intro Content */}
-        <div className="pt-[280px] sm:pt-[330px] pb-24 px-6 text-center max-w-4xl mx-auto flex-1 flex flex-col justify-center items-center">
-          <p className="text-[11px] sm:text-[12px] font-semibold uppercase tracking-[4.5px] text-[#727270] mb-5">
+        <div className="pt-[140px] sm:pt-[155px] pb-14 px-6 text-center max-w-4xl mx-auto flex flex-col items-center">
+          <p className="text-[11px] sm:text-[12px] font-semibold uppercase tracking-[4.5px] text-[#727270] mb-4">
             A little home in your machine
           </p>
           <h1 className="text-[44px] sm:text-[64px] font-normal tracking-[-2.2px] sm:tracking-[-2.8px] leading-[1.12] text-[#151515] max-w-3xl">
             Someone’s looking out for you.
           </h1>
-          <p className="text-[20px] sm:text-[23px] text-[#727270] tracking-[-0.6px] leading-[1.45] mt-4 sm:mt-5 mb-9 max-w-xl">
+          <p className="text-[19px] sm:text-[22px] text-[#727270] tracking-[-0.5px] leading-[1.45] mt-3 sm:mt-4 mb-8 max-w-xl">
             Gentle reminders. A familiar voice. Right on your screen.
           </p>
 
