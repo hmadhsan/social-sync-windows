@@ -198,10 +198,13 @@ function Index() {
             className="mx-auto size-44 rounded-[2rem] shadow-glow"
           />
           <h1 className="mt-8 text-balance font-display text-5xl font-extrabold sm:text-6xl">
-            Pani pee lo.
+            A little home in your Mac
           </h1>
           <p className="mt-4 text-lg text-muted-foreground">
-            A mum on your Windows screen. She leans in every now and then to check on you.
+            Someone&rsquo;s looking out for you.
+          </p>
+          <p className="mt-2 text-lg text-muted-foreground">
+            Gentle reminders. A familiar voice. Right in your notch.
           </p>
           <div className="mt-8 flex flex-col items-center gap-3">
             <a
