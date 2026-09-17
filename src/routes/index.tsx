@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import appIcon from "@/assets/ammi-icon.png";
-import winBuild from "@/assets/ammi-win64.zip.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -141,7 +140,7 @@ function Index() {
 
           <div className="flex flex-col items-center gap-3">
             <a
-              href={winBuild.url}
+              href="/ammi-win64.zip"
               download="ammi-win64.zip"
               className="maaa-pill-btn"
             >
@@ -506,7 +505,7 @@ function Index() {
 
         <div className="mt-8">
           <a
-            href={winBuild.url}
+            href="/ammi-win64.zip"
             download="ammi-win64.zip"
             className="maaa-pill-btn"
           >
