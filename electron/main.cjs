@@ -115,8 +115,21 @@ function saveConfig() {
   }
 }
 
+// macOS notch detection: notched displays have a taller menu bar area
+function screenInsets() {
+  try {
+    const display = screen.getPrimaryDisplay();
+    const topInset = Math.max(0, display.workArea.y - display.bounds.y);
+    const notch = process.platform === "darwin" && topInset > 30;
+    return { notch, topInset: notch ? topInset + 4 : 0, notchWidth: notch ? 220 : 0 };
+  } catch {
+    return { notch: false, topInset: 0, notchWidth: 0 };
+  }
+}
+
 function push() {
-  if (win && !win.isDestroyed()) win.webContents.send("config", config);
+  const payload = { ...config, ...screenInsets() };
+  if (win && !win.isDestroyed()) win.webContents.send("config", payload);
   if (dashboardWin && !dashboardWin.isDestroyed()) dashboardWin.webContents.send("config", config);
   saveConfig();
   buildTray();
