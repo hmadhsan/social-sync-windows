@@ -173,6 +173,10 @@ function Index() {
             <p className="text-[13px] text-[#767674] tracking-tight text-center mt-1">
               Free · Windows 10 &amp; 11 · macOS 12+ (Apple Silicon &amp; Intel)
             </p>
+            <p className="text-[12.5px] text-[#8b8b88] tracking-tight text-center max-w-md leading-[1.5]">
+              On a Mac, unzip and drag Ammi into Applications. The first time, right-click Ammi and choose
+              “Open” — macOS asks once because Ammi comes from an independent developer.
+            </p>
           </div>
         </div>
 
