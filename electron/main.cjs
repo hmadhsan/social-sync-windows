@@ -294,6 +294,16 @@ function createWindow() {
 
   win.setIgnoreMouseEvents(true, { forward: true });
   win.setAlwaysOnTop(true, "screen-saver");
+  if (process.platform === "darwin") {
+    // Sit above the menu bar / notch and follow the user across Spaces
+    try {
+      win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
+      win.setWindowButtonVisibility?.(false);
+    } catch {
+      /* ignore */
+    }
+  }
+  screen.on("display-metrics-changed", () => push());
   win.loadFile(path.join(__dirname, "..", "public", "overlay.html"));
   win.webContents.on("did-finish-load", () => push());
 }
