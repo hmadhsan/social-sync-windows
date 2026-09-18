@@ -115,8 +115,21 @@ function saveConfig() {
   }
 }
 
+// macOS notch detection: notched displays have a taller menu bar area
+function screenInsets() {
+  try {
+    const display = screen.getPrimaryDisplay();
+    const topInset = Math.max(0, display.workArea.y - display.bounds.y);
+    const notch = process.platform === "darwin" && topInset > 30;
+    return { notch, topInset: notch ? topInset + 4 : 0, notchWidth: notch ? 220 : 0 };
+  } catch {
+    return { notch: false, topInset: 0, notchWidth: 0 };
+  }
+}
+
 function push() {
-  if (win && !win.isDestroyed()) win.webContents.send("config", config);
+  const payload = { ...config, ...screenInsets() };
+  if (win && !win.isDestroyed()) win.webContents.send("config", payload);
   if (dashboardWin && !dashboardWin.isDestroyed()) dashboardWin.webContents.send("config", config);
   saveConfig();
   buildTray();
@@ -281,6 +294,16 @@ function createWindow() {
 
   win.setIgnoreMouseEvents(true, { forward: true });
   win.setAlwaysOnTop(true, "screen-saver");
+  if (process.platform === "darwin") {
+    // Sit above the menu bar / notch and follow the user across Spaces
+    try {
+      win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
+      win.setWindowButtonVisibility?.(false);
+    } catch {
+      /* ignore */
+    }
+  }
+  screen.on("display-metrics-changed", () => push());
   win.loadFile(path.join(__dirname, "..", "public", "overlay.html"));
   win.webContents.on("did-finish-load", () => push());
 }
@@ -371,26 +394,26 @@ function buildTray() {
         submenu: REMINDERS.map((r) => radio(r.label, config.enabled.includes(r.key), () => toggleReminder(r.key))),
       },
       { type: "separator" },
-      ...(process.platform === "win32"
-        ? [
-            {
-              label: "Start with Windows",
-              type: "checkbox",
-              checked: startsWithWindows(),
-              click: (item) => {
-                try {
-                  app.setLoginItemSettings({
-                    openAtLogin: item.checked,
-                    path: process.execPath,
-                    args: ["--hidden"],
-                  });
-                } catch {
-                  /* ignore */
-                }
-              },
-            },
-          ]
-        : []),
+      {
+        label: process.platform === "darwin" ? "Start at Login" : "Start with Windows",
+        type: "checkbox",
+        checked: startsWithWindows(),
+        click: (item) => {
+          try {
+            if (process.platform === "darwin") {
+              app.setLoginItemSettings({ openAtLogin: item.checked, openAsHidden: true });
+            } else {
+              app.setLoginItemSettings({
+                openAtLogin: item.checked,
+                path: process.execPath,
+                args: ["--hidden"],
+              });
+            }
+          } catch {
+            /* ignore */
+          }
+        },
+      },
       { type: "separator" },
       { label: "Quit", click: () => app.quit() },
     ]),
