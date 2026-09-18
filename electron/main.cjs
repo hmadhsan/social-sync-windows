@@ -394,26 +394,26 @@ function buildTray() {
         submenu: REMINDERS.map((r) => radio(r.label, config.enabled.includes(r.key), () => toggleReminder(r.key))),
       },
       { type: "separator" },
-      ...(process.platform === "win32"
-        ? [
-            {
-              label: "Start with Windows",
-              type: "checkbox",
-              checked: startsWithWindows(),
-              click: (item) => {
-                try {
-                  app.setLoginItemSettings({
-                    openAtLogin: item.checked,
-                    path: process.execPath,
-                    args: ["--hidden"],
-                  });
-                } catch {
-                  /* ignore */
-                }
-              },
-            },
-          ]
-        : []),
+      {
+        label: process.platform === "darwin" ? "Start at Login" : "Start with Windows",
+        type: "checkbox",
+        checked: startsWithWindows(),
+        click: (item) => {
+          try {
+            if (process.platform === "darwin") {
+              app.setLoginItemSettings({ openAtLogin: item.checked, openAsHidden: true });
+            } else {
+              app.setLoginItemSettings({
+                openAtLogin: item.checked,
+                path: process.execPath,
+                args: ["--hidden"],
+              });
+            }
+          } catch {
+            /* ignore */
+          }
+        },
+      },
       { type: "separator" },
       { label: "Quit", click: () => app.quit() },
     ]),
