@@ -165,13 +165,12 @@ function Index() {
                 </svg>
                 <span>Download for Mac</span>
               </a>
-
-              <a href={macIntel.url} download className="maaa-pill-link">
-                Intel Mac
-              </a>
             </div>
             <p className="text-[13px] text-[#767674] tracking-tight text-center mt-1">
-              Free · Windows 10 &amp; 11 · macOS 12+ (Apple Silicon &amp; Intel)
+              Free · Windows 10 &amp; 11 · macOS 12+ ·{" "}
+              <a href={macIntel.url} download className="underline underline-offset-2 hover:text-[#151515]">
+                Older Intel Mac?
+              </a>
             </p>
             <p className="text-[12.5px] text-[#8b8b88] tracking-tight text-center max-w-md leading-[1.5]">
               On a Mac, unzip and drag Ammi into Applications. The first time, right-click Ammi and choose
@@ -545,13 +544,12 @@ function Index() {
             </svg>
             <span>Download for Mac</span>
           </a>
-
-          <a href={macIntel.url} download className="maaa-pill-link">
-            Intel Mac
-          </a>
         </div>
         <p className="text-[13px] text-[#727270] mt-3">
-          Free · Windows 10 &amp; 11 · macOS (Apple Silicon &amp; Intel)
+          Free · Windows 10 &amp; 11 · macOS ·{" "}
+          <a href={macIntel.url} download className="underline underline-offset-2 hover:text-[#151515]">
+            Older Intel Mac?
+          </a>
         </p>
       </section>
 
